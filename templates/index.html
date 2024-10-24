@@ -228,7 +228,10 @@
             contentType: 'application/json'
         }).done(function(response) {
             if (response.status === "success") {
+                location.reload();  // Обновляет всю страницу
                 alert("Данные успешно отправлены в таблицу!");
+
+
             } else {
                 alert("Ошибка: " + response.message);
             }
@@ -252,7 +255,9 @@
             if (callElement) {
                 callElement.remove();
             }
+            location.reload();  // Обновляет всю страницу
             alert("Звонок успешно удален!");
+
         } else {
             alert("Ошибка: " + response.message);
         }
@@ -275,7 +280,8 @@
             contentType: 'application/json'
         }).done(function(response) {
             if (response.status === "success") {
-                alert("Звонок успешно согласован!");
+                location.reload();  // Обновляет всю страницу
+                alert("Звонок отправлен на согласование!");
             } else {
                 alert("Ошибка: " + response.message);
             }

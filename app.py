@@ -145,8 +145,10 @@ def send_lead_to_table_bath(call, WORKSHEET):
 
 
 def send_lead_to_table_mk_group(call, WORKSHEET):
-    current_date = datetime.now().strftime("%d.%m.%Y")
-    row = [current_date, " ", call[12], call[9],"имя менеджера","краткий коммент", call[13], call[11]]
+    current_date = datetime.now().strftime("%d.%m")
+    current_time = datetime.now().strftime('%H:%M')
+
+    row = [current_date, current_time, call[12], call[9], call[3]," ", call[13], call[11]]
     try:
         WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
         logging.info(f"Успешно добавлена строка: {row}")
