@@ -1,0 +1,142 @@
+/* СТРАНИЦА ЛОГИН
+
+/* Базовые стили для минималистичного и современного интерфейса */
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #e0e0e0; /* Светлый текст */
+    background-color: #121212; /* Темный фон */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрирование элементов по горизонтали */
+    justify-content: center; /* Центрирование элементов по вертикали */
+    height: 100vh; /* Занимает всю высоту окна */
+}
+
+/* Заголовок */
+h1 {
+    margin-bottom: 20px; /* Отступ снизу */
+    color: #e0e0e0; /* Светлый текст */
+    font-size: 2rem; /* Увеличенный размер шрифта */
+    text-align: center; /* Центрирование текста */
+    position: relative; /* Для псевдоэлементов */
+    font-family: 'Inter', sans-serif; /* Используем шрифт Inter */
+}
+
+/* Эффект градиента */
+h1:before {
+    content: ""; /* Создание псевдоэлемента */
+    position: absolute; /* Абсолютное позиционирование */
+    top: 0; /* Выровнять по верху */
+    left: 0; /* Выровнять по левому краю */
+    width: 100%; /* Ширина 100% */
+    height: 100%; /* Высота 100% */
+    background: linear-gradient(90deg, rgba(118, 255, 3, 0.4), rgba(255, 255, 255, 0) 70%); /* Градиент */
+    z-index: -1; /* Помещаем под текст */
+    filter: blur(15px); /* Размытие градиента */
+}
+
+/* Эффект тени */
+h1,h2 {
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), 0 0 20px rgba(118, 255, 3, 0.5); /* Тень и неоновый эффект */
+
+}
+
+
+/* Стили для формы входа */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрирование элементов по горизонтали */
+    background-color: rgba(30, 30, 30, 0.9); /* Полупрозрачный темный фон */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px); /* Размытие фона */
+}
+
+/* Поле ввода */
+input[type="text"] {
+    padding: 12px;
+    border: 2px solid #444; /* Темный цвет границы */
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #e0e0e0; /* Светлый текст */
+    background-color: #333; /* Темный фон */
+    margin-bottom: 20px; /* Отступ снизу */
+    width: 100%; /* Ширина 100% */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Плавный переход для границы и тени */
+}
+
+/* Эффект подсветки для поля ввода */
+input[type="text"]:focus {
+    border-color: #76ff03; /* Ярко-зеленая граница при фокусе */
+    box-shadow: 0 0 8px rgba(118, 255, 3, 0.8), 0 0 20px rgba(118, 255, 3, 0.5); /* Неоновый эффект */
+    outline: none; /* Убирает стандартное выделение */
+}
+
+/* Кнопка входа */
+button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #76ff03; /* Ярко-зеленый цвет */
+    color: #000; /* Черный текст */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Плавный переход для фона, тени и трансформации */
+    position: relative;
+    overflow: hidden; /* Скрыть переполнение */
+}
+
+/* Эффект при наведении на кнопку */
+button:hover {
+    background-color: #66cc03; /* Более темный зеленый при наведении */
+    box-shadow: 0 0 10px rgba(118, 255, 3, 0.6), 0 0 20px rgba(118, 255, 3, 0.4); /* Неоновый эффект */
+    transform: translateY(-2px); /* Подъем кнопки при наведении */
+}
+
+button:active {
+    transform: translateY(0); /* Сброс при нажатии */
+}
+
+/* Стили для ссылки "Забыли пароль?" */
+.forgot-password {
+    margin-top: 15px; /* Отступ сверху */
+    color: #76ff03; /* Ярко-зеленый цвет */
+}
+
+.forgot-password a {
+    color: inherit; /* Унаследовать цвет */
+    text-decoration: none; /* Убирает подчеркивание */
+    position: relative; /* Для псевдоэлементов */
+
+}
+
+.forgot-password a::after {
+    content: ""; /* Создание псевдоэлемента */
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #76ff03; /* Ярко-зеленая линия */
+    transform: scaleX(0); /* Начальная ширина линии 0 */
+    transition: transform 0.3s ease; /* Плавный переход для линии */
+    position: absolute; /* Позиционирование линии */
+    bottom: -5px; /* Положение под текстом */
+    left: 0;
+}
+
+.forgot-password a:hover::after {
+    transform: scaleX(1); /* Расширение линии при наведении */
+}
+
+/* Медиазапросы для адаптивности */
+@media (max-width: 768px) {
+    input[type="text"], button {
+        width: 100%; /* Ширина 100% для мобильных устройств */
+    }
+}
+

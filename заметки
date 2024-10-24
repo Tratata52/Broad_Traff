@@ -1,0 +1,18 @@
+id - 0
+date - 1
+user_id - 2
+manager_name - 3
+project_id - 4
+project_name - 5
+client_name - 6
+city - 7
+customer_name - 8
+phone - 9
+comment - 10
+note - 11
+name_note - 12
+city_note - 13
+mp3_url 14
+is_sent - 15
+approve - 16
+

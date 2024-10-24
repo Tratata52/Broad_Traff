@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет по действиям пользователей</title>
+</head>
+<body>
+    <h1>Отчет по действиям пользователей</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Пользователь</th>
+                <th>Отправлено в таблицу</th>
+                <th>Согласовано</th>
+                <th>Удалено</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user, sent, approved, deleted in report_data %}
+            <tr>
+                <td>{{ user }}</td>
+                <td>{{ sent }}</td>
+                <td>{{ approved }}</td>
+                <td>{{ deleted }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  <script>
+        $(document).ready(function() {
+            function loadReportData() {
+                $.ajax({
+                    url: '/report',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        const tbody = $('#report-table tbody');
+                        tbody.empty(); // Очистка старых данных
+
+                        // Заполнение таблицы новыми данными
+                        data.forEach(function(row) {
+                            const newRow = `
+                                <tr>
+                                    <td>${row.user}</td>
+                                    <td>${row.sent}</td>
+                                    <td>${row.approved}</td>
+                                    <td>${row.deleted}</td>
+                                </tr>`;
+                            tbody.append(newRow);
+                        });
+                    },
+                    error: function(xhr) {
+                        alert("Ошибка при загрузке данных отчета: " + xhr.responseText);
+                    }
+                });
+            }
+
+            // Загружаем данные при загрузке страницы
+            loadReportData();
+
+            // Обновляем данные отчета каждые 60 секунд (опционально)
+            setInterval(loadReportData, 60000);
+        });
+    </script>
+</body>
+</html>

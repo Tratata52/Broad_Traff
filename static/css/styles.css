@@ -1,0 +1,233 @@
+body {
+    font-family: Arial, sans-serif; /* Основной шрифт для всего текста */
+    margin: 20px; /* Отступы вокруг страницы */
+    background-color: #f4f4f4; /* Светло-серый фон для лучшей читаемости */
+}
+
+h1 {
+    color: #333; /* Темно-серый цвет заголовка для контраста */
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px; /* Отступ снизу формы для разделения с другими элементами */
+}
+
+table {
+    width: 100%; /* Таблица занимает всю доступную ширину */
+    border-collapse: collapse; /* Убираем промежутки между ячейками */
+    margin-top: 10px; /* Отступ сверху для отделения таблицы от других элементов */
+}
+
+th, td {
+    border: 1px solid #ccc; /* Серые границы ячеек для визуального разделения */
+    padding: 8px; /* Отступ внутри ячеек для удобства чтения */
+    text-align: left; /* Выравнивание текста по левому краю */
+    position: relative; /* Установлено для дальнейших улучшений, если понадобится позиционирование */
+}
+
+
+
+th {
+    position: sticky; /* Делает заголовки таблицы "липкими" */
+    top: 0; /* Задаем отступ от верхней части экрана */
+    background-color: #fff; /* Задаем фон, чтобы заголовок выделялся на фоне таблицы */
+    z-index: 10; /* Убедитесь, что заголовок находится выше других элементов */
+}
+
+
+.editable {
+    width: 100%; /* Ширина текстового поля соответствует ширине ячейки */
+    min-height: 20px; /* Минимальная высота для удобства редактирования */
+    box-sizing: border-box; /* Включает padding и border в общую ширину */
+    resize: vertical,horizontal;/* Пользователь может менять высоту поля */
+
+    border: 1px solid #ccc; /* Добавим границу для визуализации */
+    padding: 7px; /* Отступы для удобства */
+}
+
+
+.save-button {
+    background-color: #007BFF; /* Синий цвет фона кнопки */
+    color: white; /* Белый цвет текста на кнопке */
+    border: none; /* Убираем границу вокруг кнопки */
+    padding: 10px 15px; /* Внутренние отступы для кнопки */
+    cursor: pointer; /* Указатель меняется на "руку" при наведении */
+}
+
+.button:hover {
+    background-color: #0056b3; /* Темнее синий цвет при наведении для эффекта */
+}
+
+.tables-button{
+    background-color: #00a550; /* зеленый цвет фона кнопки */
+
+}
+
+.tables-button:hover {
+    background-color: #467a23;
+}
+
+
+
+.delete-button {
+    background-color: #dc3545; /* Красный цвет фона */
+    color: white; /* Белый цвет текста */
+}
+
+.delete-button:hover {
+    background-color: #c82333; /* Темнее красный цвет при наведении */
+}
+
+.approve-btn {
+    background-color: #a8a824; /* зеленый цвет фона кнопки */
+    color: white; /* Белый цвет текста на кнопке */
+    border: none; /* Убираем границу вокруг кнопки */
+    padding: 10px 15px; /* Внутренние отступы для кнопки */
+    cursor: pointer; /* Указатель меняется на "руку" при наведении */
+}
+
+.approve-btn:hover{
+    background-color: #467a23;
+}
+
+
+/* Изменение ширины столбцов */
+th {
+    resize: horizontal; /* Пользователь может изменять ширину столбцов */
+    overflow: auto; /* Позволяет появляться полосам прокрутки, если содержимое выходит за границы */
+}
+
+/* Дополнительные улучшения */
+
+/* Общее улучшение читаемости на мобильных устройствах */
+@media (max-width: 768px) {
+    table, th, td {
+        display: block; /* Таблица преобразуется в блоки */
+        width: 100%; /* Ширина таблицы и ячеек адаптируется к экрану */
+    }
+
+    th, td {
+        padding: 15px; /* Увеличиваем отступы для мобильных устройств */
+    }
+}
+
+.duplicate-phone {
+    background-color: #ffcccc; /* Пример светло-красного фона */
+}
+
+
+
+/* ДЛЯ СТРАНИЦЫ LOGIN
+
+body {
+    font-family: Arial, sans-serif; /* Основной шрифт для всего текста */
+    margin: 20px; /* Отступы вокруг страницы */
+    background-color: #f4f4f4; /* Светло-серый фон для лучшей читаемости */
+}
+
+h1 {
+    color: #333; /* Темно-серый цвет заголовка для контраста */
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px; /* Отступ снизу формы для разделения с другими элементами */
+    display: flex; /* Используем flex для выравнивания элементов */
+    flex-direction: column; /* Элементы располагаются в столбик */
+    align-items: center; /* Центрируем элементы */
+}
+
+input[type="text"] {
+    padding: 10px; /* Отступ внутри текстового поля */
+    border: 1px solid #ccc; /* Серый цвет границы текстового поля */
+    border-radius: 5px; /* Закругленные углы */
+    width: 300px; /* Ширина текстового поля */
+    margin-bottom: 10px; /* Отступ снизу для разделения с кнопкой */
+}
+
+button {
+    background-color: #007BFF; /* Синий цвет фона кнопки */
+    color: white; /* Белый цвет текста на кнопке */
+    border: none; /* Убираем границу вокруг кнопки */
+    padding: 10px 15px; /* Внутренние отступы для кнопки */
+    cursor: pointer; /* Указатель меняется на "руку" при наведении */
+    border-radius: 5px; /* Закругленные углы кнопки */
+}
+
+button:hover {
+    background-color: #0056b3; /* Темнее синий цвет при наведении для эффекта */
+}
+
+.user-info {
+    position: absolute;
+    top: 10px; /* Отступ от верхнего края страницы */
+    right: 10px; /* Отступ от правого края страницы */
+    background-color: rgba(255, 255, 255, 0.8); /* Фоновый цвет с прозрачностью */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.header-container {
+    position: absolute; /* Абсолютное позиционирование блока */
+    top: 20px; /* Отступ сверху */
+    right: 20px; /* Отступ справа */
+    display: flex; /* Горизонтальное расположение элементов */
+    align-items: center; /* Вертикальное выравнивание по центру */
+}
+
+.welcome-message {
+    margin-right: 10px; /* Отступ между сообщением и кнопкой */
+    font-weight: bold; /* Можно добавить жирность текста, если нужно */
+}
+
+.logout-button {
+    background-color: #dc3545; /* Красный цвет фона кнопки */
+    color: white; /* Белый цвет текста на кнопке */
+    border: none; /* Убираем границу вокруг кнопки */
+    padding: 10px 15px; /* Внутренние отступы для кнопки */
+    cursor: pointer; /* Указатель меняется на "руку" при наведении */
+    border-radius: 5px; /* Закругленные углы кнопки */
+}
+
+/* Стили для плеера */
+.custom-audio-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #4B5B6C; /* Темный фон плеера */
+    padding: 10px;
+    border-radius: 8px; /* Закругленные углы */
+    width: 90%; /* Полная ширина ячейки таблицы */
+}
+
+.progress-container {
+    flex-grow: 1;
+    height: 5px;
+    background-color: #555; /* Темный фон для контейнера прогресса */
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden; /* Обрезаем прогресс-бар, если он выходит за границы */
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #007bff; /* Синий цвет прогресс-бара */
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.2s; /* Плавная анимация изменения ширины */
+}
+
+.time-display {
+    color: #FFFFFF; /* Цвет текста времени */
+    font-size: 14px; /* Размер шрифта */
+}
+
+.speed-selector {
+    background-color: #4B5B6C; /* Темный фон для селектора скорости */
+    color: #FFFFFF; /* Цвет текста */
+    border: 1px solid #555; /* Темная граница */
+    border-radius: 5px; /* Закругленные углы */
+    padding: 5px; /* Внутренние отступы */
+}

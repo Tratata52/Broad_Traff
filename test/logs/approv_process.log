@@ -1,0 +1,14 @@
+2024-10-18 19:58:00,294 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-18 19:58:00,294 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-18 19:58:00,296 - INFO -  * Restarting with stat
+2024-10-18 19:58:04,315 - WARNING -  * Debugger is active!
+2024-10-18 19:58:04,317 - INFO -  * Debugger PIN: 899-604-366
+2024-10-18 19:58:05,306 - INFO - 127.0.0.1 - - [18/Oct/2024 19:58:05] "[32mGET / HTTP/1.1[0m" 302 -
+2024-10-18 19:58:05,455 - INFO - 127.0.0.1 - - [18/Oct/2024 19:58:05] "[35m[1mGET /login HTTP/1.1[0m" 500 -
+2024-10-18 19:58:05,545 - INFO - 127.0.0.1 - - [18/Oct/2024 19:58:05] "GET /login?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2024-10-18 19:58:05,549 - INFO - 127.0.0.1 - - [18/Oct/2024 19:58:05] "GET /login?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2024-10-18 19:58:05,608 - INFO - 127.0.0.1 - - [18/Oct/2024 19:58:05] "GET /login?__debugger__=yes&cmd=resource&f=console.png&s=33M3vxGAHqSu9WkY5rpY HTTP/1.1" 200 -
+2024-10-18 19:58:05,736 - INFO - 127.0.0.1 - - [18/Oct/2024 19:58:05] "GET /login?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2024-10-18 19:58:25,078 - INFO -  * Detected change in 'C:\\Users\\user\\PycharmProjects\\Broad_Traff\\ADMINKA\\test_app.py', reloading
+2024-10-18 19:58:25,196 - INFO -  * Restarting with stat

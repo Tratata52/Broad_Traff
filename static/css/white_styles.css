@@ -1,0 +1,255 @@
+/* Базовые стили для минималистичного и современного интерфейса */
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333; /* Цвет текста */
+    background-color: #eaeaea; /* Светло-серый фон */
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease;
+}
+
+/* Стиль для заголовка */
+.hotleads-title {
+    position: absolute; /* Позволяет разместить заголовок в левом верхнем углу */
+    top: 10px; /* Отступ сверху */
+    left: 20px; /* Отступ слева */
+    font-size: 1rem; /* Размер шрифта */
+    font-weight: 600;
+    color: #444; /* Цвет заголовка */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Тень */
+
+}
+
+/* Стили для контейнера шапки */
+.header-container {
+    display: flex;
+    justify-content: flex-end; /* Распределяет элементы по обе стороны */
+    align-items: center; /* Центрирует элементы по вертикали */
+    padding: 15px 20px;
+    background-color: #ffffff; /* Белый фон */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 0 10px;
+}
+
+/* Сообщение о приветствии */
+.welcome-message {
+    font-size: 1rem;
+    color: #555; /* Цвет сообщения */
+    margin-right: 20px; /* Отступ справа для расстояния между сообщением и кнопкой */
+}
+
+/* Кнопка выхода */
+.logout-button {
+    font-size: 1rem;
+    padding: 8px 12px;
+    border: none;
+    background-color: #e57373; /* Цвет кнопки выхода */
+    color: #ffffff; /* Цвет текста кнопки */
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f; /* Цвет кнопки при наведении */
+}
+
+/* Стиль для формы фильтров */
+form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff; /* Белый фон формы */
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    max-width: 1000px;
+}
+
+label {
+    font-size: 1rem;
+    color: #666; /* Цвет меток */
+    margin-right: 10px;
+}
+
+select {
+    padding: 8px;
+    border: 1px solid #ccc; /* Цвет границы селекта */
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #333; /* Цвет текста селекта */
+    background-color: #f5f5f5; /* Светло-серый фон селекта */
+    transition: border-color 0.2s ease;
+}
+
+select:hover, select:focus {
+    border-color: #4e8af7; /* Цвет границы при наведении и фокусе */
+}
+
+/* Таблица */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: #ffffff; /* Белый фон таблицы */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Цвет границы ячеек */
+    color: #555; /* Цвет текста в ячейках */
+}
+
+th {
+    background-color: #f0f0f0; /* Светло-серый фон заголовков */
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f7f9fc; /* Цвет строки при наведении */
+}
+
+.duplicate-phone {
+    background-color: #ffebee; /* Цвет для дублирующихся номеров */
+}
+
+/* Стили для кнопок */
+button {
+    padding: 1px 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.save-button {
+    background-color: #4caf50; /* Цвет кнопки сохранить */
+    color: #ffffff; /* Цвет текста кнопки сохранить */
+}
+
+.save-button:hover {
+    background-color: #388e3c; /* Цвет кнопки сохранить при наведении */
+}
+
+.tables-button {
+    background-color: #03a9f4; /* Цвет кнопки таблицы */
+    color: #ffffff; /* Цвет текста кнопки таблицы */
+}
+
+.tables-button:hover {
+    background-color: #0288d1; /* Цвет кнопки таблицы при наведении */
+}
+
+.delete-button {
+    background-color: #f44336; /* Цвет кнопки удалить */
+    color: #ffffff; /* Цвет текста кнопки удалить */
+}
+
+.delete-button:hover {
+    background-color: #c62828; /* Цвет кнопки удалить при наведении */
+}
+
+.approve-btn {
+    background-color: #ff9800; /* Цвет кнопки согласовать */
+    color: #ffffff; /* Цвет текста кнопки согласовать */
+}
+
+.approve-btn:hover {
+    background-color: #f57c00; /* Цвет кнопки согласовать при наведении */
+}
+
+/* Стили для редактируемых полей */
+.editable {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd; /* Цвет границы редактируемого поля */
+    border-radius: 6px;
+    background-color: #fdfdfd; /* Фон редактируемого поля */
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #444; /* Цвет текста редактируемого поля */
+}
+
+.editable:focus {
+    border-color: #4e8af7; /* Цвет границы при фокусе */
+    outline: none;
+    background-color: #ffffff; /* Фон редактируемого поля при фокусе */
+}
+
+/* Кастомный аудиоплеер */
+.custom-audio-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-container {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background-color: #ddd; /* Цвет фона для прогресс-бара */
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #4e8af7; /* Цвет прогресс-бара */
+    width: 0;
+    border-radius: 3px;
+}
+
+.play-btn, .pause-btn {
+    font-size: 1.2rem;
+    background-color: transparent; /* Прозрачный фон для кнопок воспроизведения */
+    border: none;
+    cursor: pointer;
+}
+
+.speed-selector {
+    padding: 4px 6px;
+    border: 1px solid #ddd; /* Цвет границы селектора скорости */
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #f5f5f5; /* Светло-серый фон для селектора скорости */
+}
+
+.time-display {
+    font-size: 0.8rem;
+    color: #777; /* Цвет текста для отображения времени */
+}
+
+/* Медиазапросы для адаптивности */
+@media (max-width: 768px) {
+    form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .header-container, table {
+        margin: 0;
+    }
+
+    table {
+        font-size: 0.8rem; /* Размер шрифта таблицы для мобильных устройств */
+    }
+
+    .editable {
+        font-size: 0.8rem; /* Размер шрифта редактируемого поля для мобильных устройств */
+    }
+}
