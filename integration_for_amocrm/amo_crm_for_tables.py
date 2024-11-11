@@ -15,8 +15,9 @@ if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
 # Настройка логирования
-logging.basicConfig(filename=os.path.join(log_dir, 'amo_table.log'), level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(filename=os.path.join(log_dir, 'email_monitor.log'), level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 
 json_keyfile = 'logical-air-353619-d959f6958ff1.json'
 
@@ -114,18 +115,15 @@ def extract_lead_data(lead):
         f"Извлеченные данные: Имя - {name}, Телефон - {phone}, Комментарий - {comment}, "
         f"Id проекта - {project_id},  Имя оператора - {name_manager}")
 
-    return name, phone, comment, project_id,  name_manager
+    return name, phone, comment, project_id, name_manager
 
 
 # Запись данных в Google Sheet бани
 def write_to_google_sheet_bath(sheet, name, phone, notes_text):
     current_date = datetime.now().strftime("%d.%m.%Y")  # Получение текущей даты
-    try:
-        sheet.append_row([current_date, name, phone, None, notes_text])
-        logging.info(
-            f"Успешно добавлено в лист: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
-    except Exception as e:
-        logging.error(f"Ошибка при добавлении строки в Google Sheet: {e}")
+    row_data = [current_date, name, phone, None, notes_text]
+    sheet.insert_row(row_data, index=len(sheet.get_all_values()) + 1)
+    logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
 
 
 # Запись данных в Google Sheet двери
@@ -133,48 +131,64 @@ def write_to_google_sheet_mk_group(sheet, name, phone, notes_text, name_manager)
     current_date = datetime.now().strftime("%d.%m.%Y")
     current_time = datetime.now().strftime('%H:%M')
     # Данные для добавления
-    row_data = [current_date, current_time, name, phone, None, notes_text, None, None, None, None, None, None, name_manager]
+    row_data = [current_date, current_time, name, phone, None, notes_text, None, None, None, None, None, None,
+                name_manager]
     # Вставляем строку в начало (после заголовков) и всегда с колонки A
-    sheet.insert_row(row_data, index=len(sheet.get_all_values()) + 1)  # Определяет длину текущих строк и вставляет ниже последней строки
+    sheet.insert_row(row_data, index=len(
+        sheet.get_all_values()) + 1)  # Определяет длину текущих строк и вставляет ниже последней строки
     logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
-
 
 
 # Основная функция для проверки новых сделок
 def check_for_new_leads(client):
-    spreadsheet_bath = client.open_by_url(
-        'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822#gid=4684822')
-    spreadsheet_mk = client.open_by_url(
-        'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822#gid=4684822')
+    # Тест
+    # spreadsheet_bath = client.open_by_url(
+    #     'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822#gid=4684822')
+    # spreadsheet_mk = client.open_by_url(
+    #     'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822#gid=4684822')
 
-    last_lead_id = get_last_lead_id()
+    #Таблицы клиентов
+    spreadsheet_bath = client.open_by_url(
+            'https://docs.google.com/spreadsheets/d/1-gV-0zTNFVMpYrVeZHvsLsHBAbTX5hfJZClsOhizKoI/edit?gid=506524704#gid=506524704')
+    spreadsheet_mk = client.open_by_url(
+            'https://docs.google.com/spreadsheets/d/1nj3nz6rXhWI0QS_Qp_ujYsy8zTByb94VDDyDRkSKDv0/edit?gid=2050218078#gid=2050218078')
+
+    # Получаем последний ID сделки или устанавливаем его на 0, если он не найден
+    last_lead_id = get_last_lead_id() or 0
     leads = get_leads(PIPELINE_ID, STATUS_ID)
     if not leads:
         logging.info("Сделки не найдены.")
         return
 
-    leads.sort(key=lambda x: x['id'], reverse=True)
+    # Отфильтровываем сделки по последнему ID
+    leads = sorted([lead for lead in leads if lead['id'] > last_lead_id], key=lambda x: x['id'])
+    logging.info(f"Найдено {len(leads)} новых сделок для обработки.")
 
+    if not leads:
+        logging.info("Новых сделок для обработки нет.")
+        return
+
+    # Обработка сделок
     for lead in leads:
         lead_id = lead['id']
-        if last_lead_id is None or lead_id > last_lead_id:
-            name, phone, comment, project_id, name_manager = extract_lead_data(lead)
-            notes = get_lead_notes(lead['id'])
-            notes_text = "\n".join(notes)
+        name, phone, comment, project_id, name_manager = extract_lead_data(lead)
+        notes = get_lead_notes(lead['id'])
+        notes_text = "\n".join(notes)
 
-            if project_id == '11766' and name and phone:
-                sheet = spreadsheet_mk.get_worksheet(1)
-                write_to_google_sheet_mk_group(sheet, name, phone, notes_text, name_manager)
-            elif project_id == '11962' and name and phone:
-                sheet2 = spreadsheet_bath.get_worksheet(0)
-                write_to_google_sheet_bath(sheet2, name, phone, notes_text)
-            else:
-                logging.warning(f"Пропуск сделки ID {lead_id} - неизвестный ID проекта или отсутствие данных.")
-                continue
-
-            save_last_lead_id(lead_id)
+        if project_id == '11766' and name and phone:
+            sheet = spreadsheet_mk.get_worksheet(0)
+            write_to_google_sheet_mk_group(sheet, name, phone, notes_text, name_manager)
+        elif project_id == '11962' and name and phone:
+            sheet2 = spreadsheet_bath.get_worksheet(0)
+            write_to_google_sheet_bath(sheet2, name, phone, notes_text)
         else:
-            logging.info(f"Сделка с ID {lead_id} уже была обработана.")
+            logging.warning(f"Пропуск сделки ID {lead_id} - неизвестный ID проекта или отсутствие данных.")
+            continue
+
+    # Сохраняем последний обработанный ID сделки
+    latest_processed_id = leads[-1]['id']
+    save_last_lead_id(latest_processed_id)
+    logging.info(f"Последний обработанный ID сделки: {latest_processed_id}")
 
 
 def main():
