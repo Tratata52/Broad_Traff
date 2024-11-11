@@ -122,6 +122,13 @@ tr:hover {
     background-color: #ffebee; /* Цвет для дублирующихся номеров */
 }
 
+.button-container {
+    display: flex;
+    flex-direction: column; /* Располагаем кнопки вертикально */
+    align-items: flex-end; /* Выравниваем кнопки по правой стороне */
+    gap: 8px; /* Отступ между кнопками */
+}
+
 /* Стили для кнопок */
 button {
     padding: 1px 16px;
@@ -252,4 +259,80 @@ button {
     .editable {
         font-size: 0.8rem; /* Размер шрифта редактируемого поля для мобильных устройств */
     }
+}
+/* Ограничиваем видимую высоту комментария */
+.comment-container {
+    max-height: 30px; /* ограниченная высота */
+    overflow: hidden;
+    cursor: pointer;
+    transition: max-height 0.3s ease;
+}
+
+/* Полный размер при раскрытии */
+.comment-container.expanded {
+    font-size: 1rem; /* Размер шрифта */
+    max-height: 200px; /* высота после раскрытия */
+    overflow-y: auto; /* добавляем прокрутку, если текст больше 150px */
+}
+
+/* Стиль текстового поля, чтобы выглядело как текст */
+.readonly-textarea {
+    resize: none;
+    border: none;
+    width: 100%;
+    background-color: transparent;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.popup-overlay {
+    display: none; /* Скрывает оверлей по умолчанию */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Темный полупрозрачный фон */
+    z-index: 99;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #121212; /* Темный фон для окна */
+    color: #e0e0e0; /* Светлый текст */
+    padding: 20px;
+    z-index: 100;
+    border-radius: 8px; /* Скругленные углы */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); /* Тень для контраста */
+    max-width: 80%; /* Ограничение по ширине */
+    max-height: 80%; /* Ограничение по высоте */
+    overflow: auto; /* Прокрутка, если текст слишком длинный */
+    border: 1px solid #333; /* Легкая граница */
+}
+
+.popup .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    color: #e0e0e0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.popup .close-btn:hover {
+    color: #ff4081; /* Цвет при наведении */
+}
+
+.popup p {
+    font-size: 1rem;
+    line-height: 1.5;
+    word-wrap: break-word; /* Перенос длинных слов */
+    white-space: pre-wrap; /* Сохраняет форматирование текста */
 }

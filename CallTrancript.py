@@ -367,7 +367,7 @@ def main():
 
     while True:
         clear_records_folder()
-        project_ids = [11962, 11766]  # Укажите нужные project_id
+        project_ids = [11962, 11766,12112]  # Укажите нужные project_id
         check_for_new_calls(project_ids)
         print('Повторный запрос через 2 минуты')
         time.sleep(120)  # Задержка между проверками

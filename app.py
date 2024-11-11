@@ -26,10 +26,11 @@ CREDS = ServiceAccountCredentials.from_json_keyfile_name(JSON_KEYFILE, SCOPE)
 CLIENT = gspread.authorize(CREDS)
 SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822'  # бани
 SPREADSHEET_URL2 = 'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822'  # МК групп
-SPREADSHEET1 = CLIENT.open_by_url(SPREADSHEET_URL)
-SPREADSHEET2 = CLIENT.open_by_url(SPREADSHEET_URL2)
-WORKSHEET1 = SPREADSHEET1.get_worksheet(0)  # бани
-WORKSHEET2 = SPREADSHEET2.get_worksheet(1)  # МК групп
+SPREADSHEET_URL3 = 'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822'  # Окна
+SPREADSHEET = CLIENT.open_by_url(SPREADSHEET_URL)
+WORKSHEET1 = SPREADSHEET.get_worksheet(0)  # бани
+WORKSHEET2 = SPREADSHEET.get_worksheet(1)  # МК групп
+WORKSHEET3 = SPREADSHEET.get_worksheet(2) # ОКНА
 
 
 # Функция для подключения к базе данных
@@ -116,18 +117,18 @@ def get_duplicates():
 
 
 # Сохранение комментария и примечания в базе данных
-def save_comment(call_id, name, city, comment):
+def save_comment(call_id, name, comment):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
     query = """
     UPDATE calls 
-    SET name_note = ?, city_note = ?, note = ?
+    SET name_note = ?, note = ? 
     WHERE id = ?
     """
 
     # Исправляем порядок параметров
-    cursor.execute(query, (name, city, comment, call_id))
+    cursor.execute(query, (name, comment, call_id))
 
     conn.commit()
     conn.close()
@@ -136,7 +137,7 @@ def save_comment(call_id, name, city, comment):
 # Отправка лида в Google Sheets
 def send_lead_to_table_bath(call, WORKSHEET):
     current_date = datetime.now().strftime("%d.%m.%Y")
-    row = [current_date, call[12], call[9], call[11]]
+    row = [call[12], call[9], call[11]]
     try:
         WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
         logging.info(f"Успешно добавлена строка: {row}")
@@ -148,7 +149,17 @@ def send_lead_to_table_mk_group(call, WORKSHEET):
     current_date = datetime.now().strftime("%d.%m")
     current_time = datetime.now().strftime('%H:%M')
 
-    row = [current_date, current_time, call[12], call[9]," ",call[11], " ", " ", " ", " ", " ", " ", call[3]  ]
+    row = [current_date, current_time, call[12], call[9], " ", call[11], " ", " ", " ", " ", " ", " ", call[3]]
+    try:
+        WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
+        logging.info(f"Успешно добавлена строка: {row}")
+    except Exception as e:
+        logging.error(f"Ошибка при добавлении строки в таблицу: {e} | Данные: {row}")
+
+
+def send_lead_table_window(call, WORKSHEET):
+    current_date = datetime.now().strftime("%d.%m.%Y")
+    row = [current_date, call[12], call[9], call[11]]
     try:
         WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
         logging.info(f"Успешно добавлена строка: {row}")
@@ -214,9 +225,8 @@ def index():
     if request.method == 'POST':
         call_id = request.form.get('id')
         client_name = request.form.get('client_name')
-        city = request.form.get('city')
-        comment = request.form.get('comment')
-        save_comment(call_id, client_name, city, comment)
+        comment = request.form.get('customer_name')
+        save_comment(call_id, client_name, comment)
 
     # Получаем список менеджеров и проектов
     conn = sqlite3.connect(DB_FILE)
@@ -265,12 +275,13 @@ def send_lead(call_id):
         return make_response('Сохраните изменения', 400)
 
     try:
-        if project_id == "11962": # бани
+        if project_id == "11962":  # бани
             send_lead_to_table_bath(call, WORKSHEET1)
-        elif project_id == "11766": # двери
+        elif project_id == "11766":  # двери
             send_lead_to_table_mk_group(call, WORKSHEET2)
+        elif project_id == "12112":
+            send_lead_table_window(call,WORKSHEET3)
         else:
-
             return make_response('Неизвестный проект', 400)
 
         cursor.execute("UPDATE calls SET is_sent = 1, approve = 0 WHERE id = ?", (call_id,))
@@ -335,7 +346,7 @@ def approve():
             manager_name = row[3]  # manager_name
             note = row[11]  # note
             name = row[12]  # name_note
-            city = row[13]  # city_note
+
             audio = row[14]  # mp3_url
 
             if not note or not note.strip():
@@ -343,7 +354,7 @@ def approve():
 
             # Отправляем данные в CRM
             try:
-                process_row(name, city, phone, project_name, manager_name, audio, note)
+                process_row(name, phone, project_name, manager_name, audio, note)
 
                 # Обновляем approve на 1 и оставляем is_sent = 0
                 conn.execute("UPDATE calls SET approve = 1, is_sent = 0 WHERE id = ?", (row_id,))
@@ -367,16 +378,14 @@ def save_data():
     data = request.get_json()
     call_id = data.get('id')
     name_note = data.get('name_note')
-    city_note = data.get('city_note')
     comment = data.get('note')
 
     # Вызываем функцию для сохранения данных
     try:
-        save_comment(call_id, name_note, city_note, comment)
+        save_comment(call_id, name_note, comment )
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 
 if __name__ == '__main__':
