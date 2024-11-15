@@ -1,13 +1,16 @@
 import logging
 import os
 import time
-from datetime import datetime
 
 import gspread
 import requests
 from oauth2client.service_account import ServiceAccountCredentials
 
-from approw_leads_for_crm import token_bt_crm
+from ADMINKA.config.config import JSON_KEYFILE, LAST_LEAD_ID_FILE, DOMAIN, PIPELINE_ID, STATUS_ID, WORKSHEET5
+from ADMINKA.config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4
+from approw_leads_for_crm import headers
+from write_to_gsheet import write_to_google_sheet_styrofoam, write_to_google_sheet_mk_group, \
+    write_to_google_sheet_window, write_to_google_sheet_bath
 
 # Создание директории для логов, если она не существует
 log_dir = 'logs'
@@ -19,10 +22,7 @@ if not os.path.exists(log_dir):
 logging.basicConfig(filename=os.path.join(log_dir, 'email_monitor.log'), level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 
-json_keyfile = 'logical-air-353619-d959f6958ff1.json'
-
-# Файл для хранения последнего обработанного ID сделки
-LAST_LEAD_ID_FILE = "last_lead_id.txt"
+json_keyfile = JSON_KEYFILE
 
 
 # Авторизация в Google Sheets
@@ -31,18 +31,6 @@ def authorize_google_sheets():
     creds = ServiceAccountCredentials.from_json_keyfile_name(json_keyfile, scope)
     client = gspread.authorize(creds)
     return client
-
-
-# Заголовки для авторизации в AmoCRM
-headers = {
-    'Authorization': f'Bearer {token_bt_crm}',
-    'Content-Type': 'application/json'
-}
-
-# Константы для домена и ID воронки/статуса
-DOMAIN = "infoboardtraffru.amocrm.ru"
-PIPELINE_ID = "8701282"  # ID воронки
-STATUS_ID = "70487718"  # ID статуса
 
 
 # Получение последнего обработанного ID сделки
@@ -118,41 +106,8 @@ def extract_lead_data(lead):
     return name, phone, comment, project_id, name_manager
 
 
-# Запись данных в Google Sheet бани
-def write_to_google_sheet_bath(sheet, name, phone, notes_text):
-    current_date = datetime.now().strftime("%d.%m.%Y")  # Получение текущей даты
-    row_data = [current_date, name, phone, None, notes_text]
-    sheet.insert_row(row_data, index=len(sheet.get_all_values()) + 1)
-    logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
-
-
-# Запись данных в Google Sheet двери
-def write_to_google_sheet_mk_group(sheet, name, phone, notes_text, name_manager):
-    current_date = datetime.now().strftime("%d.%m.%Y")
-    current_time = datetime.now().strftime('%H:%M')
-    # Данные для добавления
-    row_data = [current_date, current_time, name, phone, None, notes_text, None, None, None, None, None, None,
-                name_manager]
-    # Вставляем строку в начало (после заголовков) и всегда с колонки A
-    sheet.insert_row(row_data, index=len(
-        sheet.get_all_values()) + 1)  # Определяет длину текущих строк и вставляет ниже последней строки
-    logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
-
-
 # Основная функция для проверки новых сделок
 def check_for_new_leads(client):
-    # Тест
-    # spreadsheet_bath = client.open_by_url(
-    #     'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822#gid=4684822')
-    # spreadsheet_mk = client.open_by_url(
-    #     'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822#gid=4684822')
-
-    #Таблицы клиентов
-    spreadsheet_bath = client.open_by_url(
-            'https://docs.google.com/spreadsheets/d/1-gV-0zTNFVMpYrVeZHvsLsHBAbTX5hfJZClsOhizKoI/edit?gid=506524704#gid=506524704')
-    spreadsheet_mk = client.open_by_url(
-            'https://docs.google.com/spreadsheets/d/1nj3nz6rXhWI0QS_Qp_ujYsy8zTByb94VDDyDRkSKDv0/edit?gid=2050218078#gid=2050218078')
-
     # Получаем последний ID сделки или устанавливаем его на 0, если он не найден
     last_lead_id = get_last_lead_id() or 0
     leads = get_leads(PIPELINE_ID, STATUS_ID)
@@ -176,11 +131,20 @@ def check_for_new_leads(client):
         notes_text = "\n".join(notes)
 
         if project_id == '11766' and name and phone:
-            sheet = spreadsheet_mk.get_worksheet(0)
-            write_to_google_sheet_mk_group(sheet, name, phone, notes_text, name_manager)
+            write_to_google_sheet_mk_group(WORKSHEET2, phone, name, notes_text)
+
         elif project_id == '11962' and name and phone:
-            sheet2 = spreadsheet_bath.get_worksheet(0)
-            write_to_google_sheet_bath(sheet2, name, phone, notes_text)
+
+            write_to_google_sheet_bath(WORKSHEET1, phone, name, notes_text)
+        elif project_id == "12112":
+
+            write_to_google_sheet_window(WORKSHEET3, phone, name, notes_text)
+        elif project_id == "12206":
+            write_to_google_sheet_styrofoam(WORKSHEET4, phone, name, notes_text)
+
+        elif project_id == "12205":
+            write_to_google_sheet_styrofoam(WORKSHEET5, phone, name, notes_text)
+
         else:
             logging.warning(f"Пропуск сделки ID {lead_id} - неизвестный ID проекта или отсутствие данных.")
             continue

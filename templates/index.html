@@ -81,8 +81,8 @@
         <th>Телефон</th>
         <th>Примечание</th>
         <th>Имя</th>
-        <th>ИИ</th>
         <th>Действия</th>
+        <th>GPT</th>
     </tr>
     </thead>
     <tbody>
@@ -113,10 +113,6 @@
         <td><textarea class="editable" data-field="comment">{{ call[8] }}</textarea></td>
         <td><textarea class="editable" data-field="name">{{ call[6] }}</textarea></td>
         <td>
-
-            <span class="question-icon" onclick="openCommentPopup('{{ call[10] }}')">❓</span>
-        </td>
-        <td>
             <div class="button-container">
                 <button type="button" class="save-button" onclick="saveRow({{ call[0] }})">Сохранить</button>
                 <button type="button" class="tables-button" onclick="sendRow({{ call[0] }})">В таблицу</button>
@@ -126,6 +122,11 @@
                 <button type="button" class="approve-btn" onclick="approveRow({{ call[0] }})">Согласовать</button>
             </div>
         </td>
+        <td>
+
+            <span class="question-icon" onclick="openCommentPopup('{{ call[10] }}')">🔮</span>
+        </td>
+
     </tr>
     {% endfor %}
     </tbody>

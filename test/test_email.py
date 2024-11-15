@@ -16,7 +16,8 @@ url = 'https://amomail.amocrm.ru/api/v2/31780414/messages/send'
 
 # Настроим доступ к Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name('logical-air-353619-d959f6958ff1.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name(
+    '../integration_for_amocrm/logical-air-353619-d959f6958ff1.json', scope)
 client = gspread.authorize(creds)
 
 # Получаем таблицу

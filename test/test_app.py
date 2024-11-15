@@ -16,8 +16,8 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Генерация 32-символьного ключа
 
 # БАЗЫ ДАННЫХ
-DB_FILE = 'leads.db'
-DB_FILE_users = 'user_data.db'
+DB_FILE = '../leads.db'
+DB_FILE_users = '../user_data.db'
 
 # Подключение к Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]

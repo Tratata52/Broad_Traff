@@ -1,9 +1,9 @@
-import datetime
 import logging
 import os
 import sqlite3
-import requests
 import time  # Для паузы в 12 часов
+
+import requests
 
 # Параметры
 API_KEY = "CrWtR636gPGkQvh4dE6Pq3fjxXWyJXaw"
@@ -18,6 +18,7 @@ if not os.path.exists('logs'):
 # Настраиваем логирование
 logging.basicConfig(filename='logs/users_process.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
+
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -37,6 +38,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 # Сохранение данных звонка в базу данных
 def add_to_database(user_id, operator_name, operator_email, admin_status):
     conn = sqlite3.connect(DB_FILE)
@@ -47,6 +49,7 @@ def add_to_database(user_id, operator_name, operator_email, admin_status):
     conn.commit()
     conn.close()
     logging.info(f"Добавлен пользователь {operator_name}")
+
 
 # Получение пользователей
 def fetch_and_save_users():
@@ -76,6 +79,7 @@ def fetch_and_save_users():
     else:
         print(f"Ошибка при получении данных пользователей: {users_response.status_code}")
 
+
 # Основная функция
 def main():
     init_db()
@@ -91,6 +95,7 @@ def main():
         print("Данные пользователей переписаны")
 
         time.sleep(6 * 60 * 60)  # 6 часов * 60 минут * 60 секунд
+
 
 if __name__ == "__main__":
     main()

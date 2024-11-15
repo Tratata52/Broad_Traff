@@ -1,170 +1,20 @@
 import logging
 import secrets
 import sqlite3
-from datetime import datetime
 
-import gspread
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
-from oauth2client.service_account import ServiceAccountCredentials
 
+from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4,WORKSHEET5, DB_FILE, DB_FILE_users
 from integration_for_amocrm.approw_leads_for_crm import process_row
+from requests_to_db import get_db_connection, get_calls, get_duplicates, save_comment
+from send_lead_to_tables import send_lead_to_table_bath, send_lead_to_table_mk_group, send_lead_table_styrofoam, \
+    send_lead_table_window,send_lead_table_letter
 
 logging.basicConfig(filename='ADMINKA/logs/app_process.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Генерация 32-символьного ключа
-
-# БАЗЫ ДАННЫХ
-DB_FILE = 'leads.db'
-DB_FILE_users = 'user_data.db'
-
-# Подключение к Google Sheets
-SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-JSON_KEYFILE = 'logical-air-353619-d959f6958ff1.json'
-CREDS = ServiceAccountCredentials.from_json_keyfile_name(JSON_KEYFILE, SCOPE)
-CLIENT = gspread.authorize(CREDS)
-SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822'  # бани
-SPREADSHEET_URL2 = 'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822'  # МК групп
-SPREADSHEET_URL3 = 'https://docs.google.com/spreadsheets/d/1KXfLGJmA0lfirmK7Zslcl3XM2-30k2cHzqXQ_FuswRM/edit?gid=4684822'  # Окна
-SPREADSHEET = CLIENT.open_by_url(SPREADSHEET_URL)
-WORKSHEET1 = SPREADSHEET.get_worksheet(0)  # бани
-WORKSHEET2 = SPREADSHEET.get_worksheet(1)  # МК групп
-WORKSHEET3 = SPREADSHEET.get_worksheet(2) # ОКНА
-
-
-# Функция для подключения к базе данных
-def get_db_connection():
-    conn = sqlite3.connect(DB_FILE)  # Имя вашей базы данных
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-# Получение всех проектов
-def get_projects():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT project_name FROM calls")
-    projects = cursor.fetchall()
-    conn.close()
-    return projects
-
-
-# Получение звонков
-def get_calls(manager_name, project_name):
-    conn_call = sqlite3.connect(DB_FILE)
-    conn_users = sqlite3.connect(DB_FILE_users)
-    cursor_call = conn_call.cursor()
-    cursor_users = conn_users.cursor()
-
-    # Получение информации о текущем пользователе
-    manager_id = session.get('manager_id')
-    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
-    is_admin = cursor_users.fetchone()
-
-    # Начало формирования запроса
-    query = "SELECT * FROM calls WHERE is_sent = 0 AND approve = 0"
-    params = []
-
-    if is_admin and is_admin[0] == 1:  # Если администратор
-        if manager_name:
-            query += " AND manager_name = ?"
-            params.append(manager_name)
-        if project_name:
-            query += " AND project_name = ?"
-            params.append(project_name)
-    else:
-        # Если не администратор, добавляем условие для фильтрации по user_id
-        query += " AND user_id = ?"
-        params.append(manager_id)  # Здесь используем manager_id как user_id
-        if manager_name:
-            query += " AND manager_name = ?"
-            params.append(manager_name)
-        if project_name:
-            query += " AND project_name = ?"
-            params.append(project_name)
-
-    cursor_call.execute(query, params)
-    calls = cursor_call.fetchall()
-    conn_call.close()
-
-    # Обработка звонков
-    phone_count = {}
-    for call in calls:
-        phone = call[9]
-        phone_count[phone] = phone_count.get(phone, 0) + 1
-
-    enriched_calls = [(call + (phone_count[call[9]] > 1,)) for call in calls]
-    return enriched_calls
-
-
-# Получение дублей телефонов
-def get_duplicates():
-    connection = sqlite3.connect(DB_FILE)  # Укажите путь к вашей базе данных
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT phone
-        FROM calls
-        GROUP BY phone
-        HAVING COUNT(*) > 1;
-    """)
-
-    duplicates = [row[0] for row in cursor.fetchall()]
-    connection.close()
-
-    return duplicates
-
-
-# Сохранение комментария и примечания в базе данных
-def save_comment(call_id, name, comment):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-
-    query = """
-    UPDATE calls 
-    SET name_note = ?, note = ? 
-    WHERE id = ?
-    """
-
-    # Исправляем порядок параметров
-    cursor.execute(query, (name, comment, call_id))
-
-    conn.commit()
-    conn.close()
-
-
-# Отправка лида в Google Sheets
-def send_lead_to_table_bath(call, WORKSHEET):
-    current_date = datetime.now().strftime("%d.%m.%Y")
-    row = [call[12], call[9], call[11]]
-    try:
-        WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
-        logging.info(f"Успешно добавлена строка: {row}")
-    except Exception as e:
-        logging.error(f"Ошибка при добавлении строки в таблицу: {e} | Данные: {row}")
-
-
-def send_lead_to_table_mk_group(call, WORKSHEET):
-    current_date = datetime.now().strftime("%d.%m")
-    current_time = datetime.now().strftime('%H:%M')
-
-    row = [current_date, current_time, call[12], call[9], " ", call[11], " ", " ", " ", " ", " ", " ", call[3]]
-    try:
-        WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
-        logging.info(f"Успешно добавлена строка: {row}")
-    except Exception as e:
-        logging.error(f"Ошибка при добавлении строки в таблицу: {e} | Данные: {row}")
-
-
-def send_lead_table_window(call, WORKSHEET):
-    current_date = datetime.now().strftime("%d.%m.%Y")
-    row = [current_date, call[12], call[9], call[11]]
-    try:
-        WORKSHEET.append_row(row, value_input_option='RAW', insert_data_option='INSERT_ROWS')
-        logging.info(f"Успешно добавлена строка: {row}")
-    except Exception as e:
-        logging.error(f"Ошибка при добавлении строки в таблицу: {e} | Данные: {row}")
 
 
 # Функция для проверки, авторизован ли пользователь
@@ -279,8 +129,12 @@ def send_lead(call_id):
             send_lead_to_table_bath(call, WORKSHEET1)
         elif project_id == "11766":  # двери
             send_lead_to_table_mk_group(call, WORKSHEET2)
-        elif project_id == "12112":
-            send_lead_table_window(call,WORKSHEET3)
+        elif project_id == "12112": # окна
+            send_lead_table_window(call, WORKSHEET3)
+        elif project_id == "12206": # пенопласт
+            send_lead_table_styrofoam(call, WORKSHEET4)
+        elif project_id == "12205": # ваша буква
+            send_lead_table_letter(call, WORKSHEET5)
         else:
             return make_response('Неизвестный проект', 400)
 
@@ -382,7 +236,7 @@ def save_data():
 
     # Вызываем функцию для сохранения данных
     try:
-        save_comment(call_id, name_note, comment )
+        save_comment(call_id, name_note, comment)
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
