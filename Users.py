@@ -5,10 +5,8 @@ import time  # Для паузы в 12 часов
 
 import requests
 
-# Параметры
-API_KEY = "CrWtR636gPGkQvh4dE6Pq3fjxXWyJXaw"
-BASE_URL = "https://app.obzvonilka.ru"
-USERS_URL = f'{BASE_URL}/api/users'
+from config.config import API_KEY, USERS_URL
+
 DB_FILE = 'user_data.db'
 
 # Создаём папку logs, если её нет

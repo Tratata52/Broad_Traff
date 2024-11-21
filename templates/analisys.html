@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Горячие Лиды</title>
+    <link href="{{ url_for('static', filename='css/dark_styles.css') }}" rel="stylesheet">
+
+</head>
+<body>
+<style>
+
+    /*analisys */
+    .filters {
+        display: left;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .filters select, .filters input {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    table {
+        width: 45%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    table th, table td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+    table th {
+        color: #fff;
+        cursor: pointer;
+    }
+    table tbody tr:hover {
+        background-color: #424242;
+    }
+    .highlight-hot-leads {
+        background-color: #424242;
+    }
+    .summary-box {
+        display: left;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+</style>
+<header>
+    <h1>Горячие Лиды 1.11.2024 - 21.11.2024</h1>
+</header>
+
+<div class="container">
+    <div class="filters">
+        <select id="projectFilter">
+            <option value="">Все проекты</option>
+        </select>
+        <input id="startDateFilter" type="date">
+        <input id="endDateFilter" type="date">
+        <button onclick="applyFilters()">Применить</button>
+    </div>
+
+    <div class="summary-box">
+        <div><i class="fa fa-bullhorn"></i> Горячие Лиды: <span id="hotLeadsCount">0</span></div>
+        <div><i class="fa fa-phone"></i> Общее количество звонков: <span id="totalCalls">0</span></div>
+    </div>
+
+    <table id="dataTable">
+        <thead>
+        <tr>
+            <th onclick="sortTable(0)">Источник</th>
+            <th onclick="sortTable(1)">Горячие Лиды</th>
+            <th onclick="sortTable(3)">Перезвонить</th>
+            <th onclick="sortTable(4)">Отложенный спрос</th>
+            <th onclick="sortTable(2)">Всего</th>
+
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <!-- Данные будут добавлены динамически -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Статусы для фильтрации
+const hotLeadsStatuses = [
+    "Горячий лид",
+    "Горячий лид (Входная дверь)"
+];
+
+const callBackStatuses = [
+    "Перезвонить"
+];
+
+const deferredDemandStatuses = [
+    "Отложенный спрос"
+];
+
+// Генерация таблицы с фильтрацией
+function generateTable(data) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = ''; // Очищаем таблицу
+
+    const aggregatedData = {}; // Данные по источникам
+
+    // Агрегируем данные по источникам, исключая повторения
+    for (const date in data) {
+        for (const project in data[date]) {
+            const sources = data[date][project];
+            for (const source in sources) {
+                if (!aggregatedData[source]) {
+                    aggregatedData[source] = { горячие_лиды: 0, перезвонить: 0, отложенный_спрос: 0, звонки: 0 };
+                }
+                // Увеличиваем счетчики для каждого статуса
+                aggregatedData[source].горячие_лиды += sources[source].горячие_лиды || 0;
+                aggregatedData[source].перезвонить += sources[source].перезвонить || 0;
+                aggregatedData[source].отложенный_спрос += sources[source].отложенный_спрос || 0;
+                aggregatedData[source].звонки += sources[source].звонки || 0;
+            }
+        }
+    }
+
+    // Создаем строки таблицы с суммой по каждому источнику
+    for (const source in aggregatedData) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${source}</td>
+            <td class="${aggregatedData[source].горячие_лиды > 0 ? 'highlight-hot-leads' : ''}">
+                ${aggregatedData[source].горячие_лиды}
+            </td>
+            <td class="${aggregatedData[source].перезвонить > 0 ? 'highlight-call-back' : ''}">
+                ${aggregatedData[source].перезвонить}
+            </td>
+            <td class="${aggregatedData[source].отложенный_спрос > 0 ? 'highlight-deferred' : ''}">
+                ${aggregatedData[source].отложенный_спрос}
+            </td>
+            <td>${aggregatedData[source].звонки}</td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+// Обновление информации о статистике
+function updateSummary(data) {
+    let hotLeadsCount = 0;
+    let callBackCount = 0;
+    let deferredDemandCount = 0;
+    let totalCalls = 0;
+
+    for (const date in data) {
+        for (const project in data[date]) {
+            const sources = data[date][project];
+            for (const source in sources) {
+                hotLeadsCount += sources[source].горячие_лиды || 0;
+                callBackCount += sources[source].перезвонить || 0;
+                deferredDemandCount += sources[source].отложенный_спрос || 0;
+                totalCalls += sources[source].звонки || 0;
+            }
+        }
+    }
+
+    document.getElementById('hotLeadsCount').textContent = hotLeadsCount;
+    document.getElementById('callBackCount').textContent = callBackCount;
+    document.getElementById('deferredDemandCount').textContent = deferredDemandCount;
+    document.getElementById('totalCalls').textContent = totalCalls;
+}
+
+// Функция для загрузки данных
+async function loadData() {
+    try {
+        const response = await fetch('/static/compact_contact_sources.json'); // Путь к файлу JSON
+        const data = await response.json();
+        allData = data;
+        filteredData = data;
+        populateProjectFilter(data);
+        generateTable(filteredData);
+        updateSummary(filteredData);
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+    }
+}
+
+    let allData = {};  // Все данные
+    let filteredData = {};  // Отфильтрованные данные
+
+    // Функция для загрузки данных
+    async function loadData() {
+        try {
+            const response = await fetch('/static/compact_contact_sources.json'); // Путь к файлу JSON
+            const data = await response.json();
+            allData = data;
+            filteredData = data;
+            populateProjectFilter(data);
+            generateTable(filteredData);
+            updateSummary(filteredData);
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+        }
+    }
+
+    // Генерация таблицы с фильтрацией
+    // Генерация таблицы с фильтрацией
+function generateTable(data) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = ''; // Очищаем таблицу
+
+    const aggregatedData = {}; // Данные по источникам
+
+    // Агрегируем данные по источникам, исключая повторения
+    for (const date in data) {
+        for (const project in data[date]) {
+            const sources = data[date][project];
+            for (const source in sources) {
+                if (!aggregatedData[source]) {
+                    aggregatedData[source] = {
+                        горячие_лиды: 0,
+                        перезвонить: 0,
+                        отложенный_спрос: 0,
+                        звонки: 0
+                    };
+                }
+                // Увеличиваем счетчики для каждого статуса
+                aggregatedData[source].горячие_лиды += sources[source].горячие_лиды || 0;
+                aggregatedData[source].перезвонить += sources[source].перезвонить || 0;
+                aggregatedData[source].отложенный_спрос += sources[source].отложенный_спрос || 0;
+                aggregatedData[source].звонки += sources[source].звонки || 0;
+            }
+        }
+    }
+
+    // Создаем строки таблицы с суммой по каждому источнику
+    for (const source in aggregatedData) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${source}</td>
+            <td class="${aggregatedData[source].горячие_лиды > 0 ? 'highlight-hot-leads' : ''}">
+                ${aggregatedData[source].горячие_лиды}
+            </td>
+            <td class="${aggregatedData[source].перезвонить > 0 ? 'highlight-call-back' : ''}">
+                ${aggregatedData[source].перезвонить}
+            </td>
+            <td class="${aggregatedData[source].отложенный_спрос > 0 ? 'highlight-deferred' : ''}">
+                ${aggregatedData[source].отложенный_спрос}
+            </td>
+            <td>${aggregatedData[source].звонки}</td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+// Обновление информации о статистике
+function updateSummary(data) {
+    let hotLeadsCount = 0;
+    let callBackCount = 0;
+    let deferredDemandCount = 0;
+    let totalCalls = 0;
+
+    for (const date in data) {
+        for (const project in data[date]) {
+            const sources = data[date][project];
+            for (const source in sources) {
+                hotLeadsCount += sources[source].горячие_лиды || 0;
+                callBackCount += sources[source].перезвонить || 0;
+                deferredDemandCount += sources[source].отложенный_спрос || 0;
+                totalCalls += sources[source].звонки || 0;
+            }
+        }
+    }
+
+    document.getElementById('hotLeadsCount').textContent = hotLeadsCount;
+    document.getElementById('callBackCount').textContent = callBackCount;
+    document.getElementById('deferredDemandCount').textContent = deferredDemandCount;
+    document.getElementById('totalCalls').textContent = totalCalls;
+}
+
+    // Обновление информации о статистике
+    function updateSummary(data) {
+        let hotLeadsCount = 0;
+        let totalCalls = 0;
+
+        for (const date in data) {
+            for (const project in data[date]) {
+                const sources = data[date][project];
+                for (const source in sources) {
+                    hotLeadsCount += sources[source].горячие_лиды || 0;
+                    totalCalls += sources[source].звонки || 0;
+                }
+            }
+        }
+
+        document.getElementById('hotLeadsCount').textContent = hotLeadsCount;
+        document.getElementById('totalCalls').textContent = totalCalls;
+    }
+
+    // Заполнение фильтра проектов
+    function populateProjectFilter(data) {
+        const projectFilter = document.getElementById('projectFilter');
+        const projects = new Set();
+
+        for (const date in data) {
+            for (const project in data[date]) {
+                projects.add(project);
+            }
+        }
+
+        projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project;
+            option.textContent = project;
+            projectFilter.appendChild(option);
+        });
+    }
+
+    // Применение фильтров
+    function applyFilters() {
+        const projectFilter = document.getElementById('projectFilter').value;
+        const startDate = document.getElementById('startDateFilter').value;
+        const endDate = document.getElementById('endDateFilter').value;
+
+        filteredData = {}; // Очистка данных перед фильтрацией
+
+        // Фильтрация данных по датам и проектам
+        for (const date in allData) {
+            if ((startDate === "" || date >= startDate) && (endDate === "" || date <= endDate)) {
+                for (const project in allData[date]) {
+                    if (projectFilter === "" || project === projectFilter) {
+                        if (!filteredData[date]) {
+                            filteredData[date] = {};
+                        }
+                        filteredData[date][project] = allData[date][project];
+                    }
+                }
+            }
+        }
+
+        generateTable(filteredData); // Перегенерация таблицы
+        updateSummary(filteredData); // Обновление статистики
+    }
+
+    // Сортировка таблицы по столбцам
+    let sortDirection = [true, true, true]; // Для сортировки
+    function sortTable(colIndex) {
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+        const rowsArray = Array.from(rows);
+        const direction = sortDirection[colIndex] ? 1 : -1;
+
+        rowsArray.sort((rowA, rowB) => {
+            const cellA = rowA.cells[colIndex].textContent.trim();
+            const cellB = rowB.cells[colIndex].textContent.trim();
+            return (cellA - cellB) * direction;
+        });
+
+        rowsArray.forEach(row => document.querySelector('#dataTable tbody').appendChild(row));
+
+        sortDirection[colIndex] = !sortDirection[colIndex]; // Переключаем направление сортировки
+    }
+
+
+    // Функция для вычисления цвета фона
+    function getLeadBackgroundColor(hotLeads) {
+        // Максимальное количество лидов для расчета (можно настроить по необходимости)
+        const maxLeads = 1000;
+
+        // Нормализуем количество лидов в диапазон от 0 до 1
+        const normalized = Math.min(hotLeads / maxLeads, 1); // Ограничиваем максимальное значение 1
+
+        // Рассчитываем цвет на основе нормализованного значения
+        const red = Math.floor(255 - (normalized * 255)); // Чем больше лидов, тем краснее
+        const green = Math.floor(normalized * 255); // Чем больше лидов, тем зеленее
+
+        return `rgb(${red}, ${green}, 0)`; // Цвет от желтого (255, 255, 0) до зеленого (0, 255, 0)
+    }
+
+    // Загружаем данные при старте страницы
+    loadData();
+</script>
+
+</body>
+</html>

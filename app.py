@@ -4,11 +4,11 @@ import sqlite3
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
 
-from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4,WORKSHEET5, DB_FILE, DB_FILE_users
+from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4, WORKSHEET5, DB_FILE, DB_FILE_users
 from integration_for_amocrm.approw_leads_for_crm import process_row
-from requests_to_db import get_db_connection, get_calls, get_duplicates, save_comment
+from requests_to_db import get_db_connection, get_duplicates, save_comment
 from send_lead_to_tables import send_lead_to_table_bath, send_lead_to_table_mk_group, send_lead_table_styrofoam, \
-    send_lead_table_window,send_lead_table_letter
+    send_lead_table_window, send_lead_table_letter
 
 logging.basicConfig(filename='ADMINKA/logs/app_process.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -26,6 +26,87 @@ def login_required(func):
 
     wrapper.__name__ = func.__name__
     return wrapper
+
+
+# Получение звонков
+def get_calls(manager_name, project_name):
+    conn_call = sqlite3.connect(DB_FILE)
+    conn_users = sqlite3.connect(DB_FILE_users)
+    cursor_call = conn_call.cursor()
+    cursor_users = conn_users.cursor()
+
+    # Получение информации о текущем пользователе
+    manager_id = session.get('manager_id')
+    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
+    is_admin = cursor_users.fetchone()
+
+    # Начало формирования запроса
+    query = "SELECT * FROM calls WHERE is_sent = 0 AND approve = 0"
+    params = []
+
+    if is_admin and is_admin[0] == 1:  # Если администратор
+        if manager_name:
+            query += " AND manager_name = ?"
+            params.append(manager_name)
+        if project_name:
+            query += " AND project_name = ?"
+            params.append(project_name)
+    else:
+        # Если не администратор, добавляем условие для фильтрации по user_id
+        query += " AND user_id = ?"
+        params.append(manager_id)  # Здесь используем manager_id как user_id
+        if manager_name:
+            query += " AND manager_name = ?"
+            params.append(manager_name)
+        if project_name:
+            query += " AND project_name = ?"
+            params.append(project_name)
+
+    cursor_call.execute(query, params)
+    calls = cursor_call.fetchall()
+    conn_call.close()
+
+    # Обработка звонков
+    phone_count = {}
+    for call in calls:
+        phone = call[9]
+        phone_count[phone] = phone_count.get(phone, 0) + 1
+
+    enriched_calls = [(call + (phone_count[call[9]] > 1,)) for call in calls]
+    return enriched_calls
+
+
+@app.route('/report', methods=['GET'])
+@login_required  # Проверка авторизации
+def report():
+    manager_id = session.get('manager_id')
+
+    # Проверка, является ли пользователь администратором
+    conn_users = sqlite3.connect(DB_FILE_users)
+    cursor_users = conn_users.cursor()
+    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
+    is_admin = cursor_users.fetchone()
+    conn_users.close()
+
+    if is_admin and is_admin[0] == 1:
+        # Администратор имеет доступ к отчету
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT manager_name, COUNT(*) AS total_calls, 
+                   SUM(CASE WHEN is_sent = 1 THEN 1 ELSE 0 END) AS sent_calls,
+                   SUM(CASE WHEN approve = 1 THEN 1 ELSE 0 END) AS approved_calls,
+                   SUM(CASE WHEN is_sent = 0 AND approve = 0 THEN 1 ELSE 0 END) AS sent_and_approved
+            FROM calls
+            GROUP BY manager_name
+        """)
+        report_data = cursor.fetchall()
+        conn.close()
+
+        return render_template('report.html', report_data=report_data)
+    else:
+        return redirect(url_for('index'))  # Если не администратор, перенаправить на главную
 
 
 # Авторизация
@@ -129,11 +210,11 @@ def send_lead(call_id):
             send_lead_to_table_bath(call, WORKSHEET1)
         elif project_id == "11766":  # двери
             send_lead_to_table_mk_group(call, WORKSHEET2)
-        elif project_id == "12112": # окна
+        elif project_id == "12112":  # окна
             send_lead_table_window(call, WORKSHEET3)
-        elif project_id == "12206": # пенопласт
+        elif project_id == "12206":  # пенопласт
             send_lead_table_styrofoam(call, WORKSHEET4)
-        elif project_id == "12205": # ваша буква
+        elif project_id == "12205":  # ваша буква
             send_lead_table_letter(call, WORKSHEET5)
         else:
             return make_response('Неизвестный проект', 400)
@@ -242,5 +323,63 @@ def save_data():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+@app.route('/rep')
+def leads_page():
+    return render_template('analisys.html')  # Новая страница с фильтрами и таблицей
+
+
+#
+# @app.route('/update_status', methods=['POST'])
+# def update_status():
+#     data = request.json
+#     row_index = data.get('row_index')
+#     status = data.get('status')
+#
+#     if not row_index or not status:
+#         return jsonify({"error": "Invalid data"}), 400
+#
+#     try:
+#         # Обновляем ячейку в столбце K (индекс строки в Google Sheets начинается с 1)
+#         worksheet.update_cell(row_index, 11, status)
+#         return jsonify({"success": True})
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+#
+#
+# @app.route('/replacement', methods=['GET', 'POST'])
+# @login_required
+# def replacement():
+#     if request.method == 'POST':
+#         # Обработка формы: Получение данных из запроса
+#         row_id = request.form.get('row_id')
+#         status = request.form.get('status')
+#
+#         # Обновление данных в Google Sheets или базе данных
+#         worksheet = client.open_by_url(SPREADSHEET_URL2).get_worksheet(0)
+#         all_rows = worksheet.get_all_values()
+#
+#         # Найти и обновить строку
+#         for i, row in enumerate(all_rows):
+#             if len(row) > 10 and row[10] == '' and str(i + 1) == row_id:
+#                 worksheet.update_cell(i + 1, 11, status)  # Обновить столбец K
+#                 break
+#
+#         return redirect(url_for('replacement'))  # Перезагрузка страницы
+#
+#     # Чтение данных из Google Sheets
+#     worksheet = client.open_by_url(SPREADSHEET_URL2).get_worksheet(0)
+#     all_rows = worksheet.get_all_values()
+#
+#     # Фильтрация данных
+#     filtered_rows = [
+#         {"id": str(i + 1), "data": row}
+#         for i, row in enumerate(all_rows)
+#         if len(row) > 9 and row[9] and len(row) > 10 and not row[10]
+#     ]
+#
+#     return render_template('replacement.html', rows=filtered_rows)
+#
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+

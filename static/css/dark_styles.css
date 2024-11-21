@@ -81,7 +81,7 @@ form {
     margin: 20px auto;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    max-width: 1000px;
+    max-width: 1200px;
     backdrop-filter: blur(10px); /* Размытие фона */
 
 }
@@ -139,6 +139,31 @@ th {
     background-color: #2c2c2c; /* Темно-серый цвет */
     font-weight: 600;
 }
+th:hover {
+    background-color: #3a3a3a; /* Цвет при наведении */
+    transition: all 0.3s ease; /* Плавный переход для всех эффектов */
+}
+
+a {
+    color: #fff; /* Белый цвет текста */
+    text-decoration: none; /* Убираем подчеркивание */
+    padding: 10px 20px; /* Немного отступов для кнопки */
+    background-color: #222222; /* Темный фон */
+    border-radius: 5px; /* Скругленные углы */
+    display: inline-block; /* Кнопка ведет себя как блок */
+    transition: all 0.3s ease; /* Плавный переход */
+}
+
+a:hover {
+    background-color: #111111; /* Темный фон при наведении */
+    box-shadow: 0 0 15px rgba(118, 255, 3, 0.6), 0 0 30px rgba(118, 255, 3, 0.4); /* Неоновый эффект */
+    transform: translateY(-2px); /* Подъем кнопки */
+    color: #f0f0f0; /* Светлый цвет текста на ховере */
+    text-shadow: 0 0 10px rgba(118, 255, 3, 0.6); /* Легкое неоновое свечение для текста */
+    transition: all 0.3s ease; /* Плавный переход */
+}
+
+
 
 tr:hover {
     background-color: #3a3a3a; /* Цвет при наведении */
@@ -455,3 +480,4 @@ textarea.editable:focus {
     transform: translateY(-2px); /* Подъем кнопки при наведении */
     transition: all 0.3s ease; /* Плавный переход для всех эффектов */
 }
+

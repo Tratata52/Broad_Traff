@@ -2,8 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 HotLeads 🔥</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>🎄HotLeads🎄</title>
+
 
     <style>
         /* Временный стиль для плавного перехода темы */
@@ -32,7 +33,11 @@
 
 <body>
 <h1 class="hotleads-title">
-    <a style="text-decoration: none; color: inherit;">🔥 HotLeads 🔥</a>
+    <a style="text-decoration: none; color: inherit;">🎄 HotLeads 🎄</a>
+    <a href="{{ url_for('report') }}" style="text-decoration: none; color: inherit;">Отчет по отправленным</a>
+    <a href="{{ url_for('leads_page') }}" style="text-decoration: none; color: inherit;">Анализ трафика</a>
+
+
 </h1>
 
 <!-- Всплывающее окно -->
@@ -45,32 +50,36 @@
 <div class="header-container">
     {% if session.manager_name %}
     <span class="welcome-message">Добро пожаловать, {{ session.manager_name }}!</span>
-    <a href="{{ url_for('logout') }}" class="logout-button">Выйти</a>
+    <a class="logout-button" href="{{ url_for('logout') }}">Выйти</a>
     <span class="theme-switcher" id="theme-toggle" title="Переключить тему">🌚</span>
     {% endif %}
 </div>
 
-<form method="GET" action="{{ url_for('index') }}">
-    <input type="hidden" name="current_theme" id="current-theme" value="{{ current_theme }}">
+<form action="{{ url_for('index') }}" method="GET">
+    <input id="current-theme" name="current_theme" type="hidden" value="{{ current_theme }}">
 
     {% if is_admin %}
     <label>Менеджер:</label>
-    <select name="manager" id="manager" onchange="this.form.submit()">
-        <option value="">Все</option>
+    <select id="manager" name="manager" onchange="this.form.submit()">
+        <option value="" {% if not selected_manager %}selected{% endif %}>Все</option>
         {% for manager in managers %}
-        <option value="{{ manager[0] }}" {% if manager[0]== selected_manager %}selected{% endif %}>{{ manager[0] }}
+        <option value="{{ manager[0] }}" {% if manager[0]== selected_manager %}selected{% endif %}>
+            {{ manager[0] }}
         </option>
         {% endfor %}
+
     </select>
     {% endif %}
 
     <label>Проект:</label>
-    <select name="project" id="project" onchange="this.form.submit()">
-        <option value="">Все</option>
+    <select id="project" name="project" onchange="this.form.submit()">
+        <option value="" {% if not selected_project %}selected{% endif %}>Все</option>
         {% for project in projects %}
-        <option value="{{ project[0] }}" {% if project[0]== selected_project %}selected{% endif %}>{{ project[0] }}
+        <option value="{{ project[0] }}" {% if project[0]== selected_project %}selected{% endif %}>
+            {{ project[0] }}
         </option>
         {% endfor %}
+
     </select>
 </form>
 
@@ -87,11 +96,11 @@
     </thead>
     <tbody>
     {% for call in calls %}
-    <tr id="call-{{ call[0] }}" data-id="{{ call[0] }}" class="{% if call[-2] %}duplicate-phone{% endif %}">
+    <tr class="{% if call[-2] %}duplicate-phone{% endif %}" data-id="{{ call[0] }}" id="call-{{ call[0] }}">
         <td>
             <div class="custom-audio-player" id="player-{{ call[0] }}">
                 <button class="play-btn" onclick="togglePlay('{{ call[0] }}')">▶️</button>
-                <button class="pause-btn" style="display: none;" onclick="togglePlay('{{ call[0] }}')">⏸️</button>
+                <button class="pause-btn" onclick="togglePlay('{{ call[0] }}')" style="display: none;">⏸️</button>
                 <div class="progress-container" onclick="setProgress(event, '{{ call[0] }}')">
                     <div class="progress-bar"></div>
                 </div>
@@ -101,11 +110,11 @@
                 </div>
                 <select class="speed-selector" id="speed-{{ call[0] }}" onchange="setPlaybackRate('{{ call[0] }}')">
                     <option value="0.5">0.5x</option>
-                    <option value="1" selected>1x</option>
+                    <option selected value="1">1x</option>
                     <option value="1.5">1.5x</option>
                     <option value="2">2x</option>
                 </select>
-                <audio id="audio-{{ call[0] }}" src="{{ call[14] }}" preload="none"></audio>
+                <audio id="audio-{{ call[0] }}" preload="none" src="{{ call[14] }}"></audio>
             </div>
         </td>
 
@@ -114,12 +123,12 @@
         <td><textarea class="editable" data-field="name">{{ call[6] }}</textarea></td>
         <td>
             <div class="button-container">
-                <button type="button" class="save-button" onclick="saveRow({{ call[0] }})">Сохранить</button>
-                <button type="button" class="tables-button" onclick="sendRow({{ call[0] }})">В таблицу</button>
+                <button class="save-button" onclick="saveRow({{ call[0] }})" type="button">Сохранить</button>
+                <button class="tables-button" onclick="sendRow({{ call[0] }})" type="button">В таблицу</button>
                 {% if call[9] in duplicates %}
-                <button type="button" class="delete-button" onclick="deleteRow({{ call[0] }})">Удалить</button>
+                <button class="delete-button" onclick="deleteRow({{ call[0] }})" type="button">Удалить</button>
                 {% endif %}
-                <button type="button" class="approve-btn" onclick="approveRow({{ call[0] }})">Согласовать</button>
+                <button class="approve-btn" onclick="approveRow({{ call[0] }})" type="button">Согласовать</button>
             </div>
         </td>
         <td>
@@ -172,7 +181,7 @@
              localStorage.setItem('theme', "{{ url_for('static', filename='css/dark_styles.css') }}");
          } else {
              themeStyle.setAttribute('href', "{{ url_for('static', filename='css/white_styles.css') }}");
-             themeToggle.innerHTML = '🌙';
+             themeToggle.innerHTML = '🌚';
              localStorage.setItem('theme', "{{ url_for('static', filename='css/white_styles.css') }}");
          }
          document.getElementById('current-theme').value = themeStyle.getAttribute('href');
@@ -181,14 +190,18 @@
      const duplicates = {{ duplicates | tojson }};
 
      function checkDuplicates() {
-         const rows = document.querySelectorAll('tbody tr');
-         rows.forEach(row => {
-             const phone = row.querySelector('td:nth-child(2)').innerText;
-             if (duplicates.includes(phone)) {
-                 row.classList.add('duplicate-phone');
-             }
-         });
-     }
+        const rows = document.querySelectorAll('tbody tr');
+        const phoneNumbers = Array.from(rows).map(row => row.querySelector('td:nth-child(2)').innerText);
+        const duplicatePhones = phoneNumbers.filter(phone => duplicates.includes(phone));
+
+        rows.forEach(row => {
+            const phone = row.querySelector('td:nth-child(2)').innerText;
+            if (duplicatePhones.includes(phone)) {
+                row.classList.add('duplicate-phone');
+            }
+        });
+}
+
 
      document.addEventListener('DOMContentLoaded', function() {
          checkDuplicates();
@@ -319,6 +332,10 @@
          const speed = document.getElementById(`speed-${callId}`).value;
          audio.playbackRate = parseFloat(speed);
      }
+     setInterval(function() {
+     location.reload();
+
+    }, 180000); // 180000 миллисекунд = 3 минуты
 
 
 </script>

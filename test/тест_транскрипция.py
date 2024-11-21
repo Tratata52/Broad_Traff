@@ -76,12 +76,14 @@ def init_db():
 
 
 # Сохранение данных звонка в базу данных
-def add_to_database(date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url):
+def add_to_database(date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone,
+                    comment, mp3_url):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute('''INSERT INTO calls (date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                   (date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url))
+                   (date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone,
+                    comment, mp3_url))
 
     conn.commit()
     conn.close()
@@ -309,6 +311,7 @@ def extract_name_and_city(call):
 
     return name, city
 
+
 # Обработка текста
 def process_audio(file_path, call, mp3_url):
     text = transcribe_audio_with_whisper(file_path)
@@ -322,7 +325,6 @@ def process_audio(file_path, call, mp3_url):
     # Извлекаем имя и город
     client_name, city = extract_name_and_city(call)
 
-
     comment_prompt = f"""Расскажите подробно, учитывая размеры и цвет и другие детали, что хочет клиент.
 Не упоминайте имён людей, названия компаний и бренды. Начинайте рассказ со слова "Интересуется ..." 
 Текст:
@@ -332,8 +334,8 @@ def process_audio(file_path, call, mp3_url):
     comment = get_chat_response(comment_prompt, 1, 1024)
 
     # Сохраняем данные в базу
-    add_to_database(get_today_date(), user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url)
-
+    add_to_database(get_today_date(), user_id, manager_name, project_id, project_name, client_name, city, customer_name,
+                    phone, comment, mp3_url)
 
 
 # Основная функция

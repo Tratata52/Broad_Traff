@@ -7,7 +7,7 @@ from flask import session
 from ADMINKA.config.config import DB_FILE, DB_FILE_users
 
 
-# Инициализация базы данных
+# Инициализация базы данных для звонков
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -58,12 +58,14 @@ def get_db_connection():
 
 
 # Сохранение данных звонка в базу данных
-def add_to_database(date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url):
+def add_to_database(date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone,
+                    comment, mp3_url):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute('''INSERT INTO calls (date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                   (date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone, comment, mp3_url))
+                   (date, user_id, manager_name, project_id, project_name, client_name, city, customer_name, phone,
+                    comment, mp3_url))
 
     conn.commit()
     conn.close()
@@ -78,6 +80,7 @@ def get_projects():
     projects = cursor.fetchall()
     conn.close()
     return projects
+
 
 # Получение звонков
 def get_calls(manager_name, project_name):
@@ -144,6 +147,7 @@ def get_duplicates():
 
     return duplicates
 
+
 # Сохранение комментария и примечания в базе данных
 def save_comment(call_id, name, comment):
     conn = sqlite3.connect(DB_FILE)
@@ -160,6 +164,7 @@ def save_comment(call_id, name, comment):
 
     conn.commit()
     conn.close()
+
 
 # Функция для получения списка user_id из базы данных
 def get_user_ids():

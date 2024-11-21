@@ -54,6 +54,7 @@ def send_lead_table_styrofoam(call, WORKSHEET):
     except Exception as e:
         logging.error(f"Ошибка при добавлении строки в таблицу: {e} | Данные: {row}")
 
+
 def send_lead_table_letter(call, WORKSHEET):
     current_date = datetime.now().strftime("%d.%m.%Y")
     row = [current_date, call[9], call[12], call[11]]

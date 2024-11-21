@@ -1,66 +1,93 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Отчет по действиям пользователей</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Отчет по лидам</title>
+    <link href="{{ url_for('static', filename='css/dark_styles.css') }}" rel="stylesheet">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        th:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
-    <h1>Отчет по действиям пользователей</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Пользователь</th>
-                <th>Отправлено в таблицу</th>
-                <th>Согласовано</th>
-                <th>Удалено</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user, sent, approved, deleted in report_data %}
-            <tr>
-                <td>{{ user }}</td>
-                <td>{{ sent }}</td>
-                <td>{{ approved }}</td>
-                <td>{{ deleted }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-  <script>
-        $(document).ready(function() {
-            function loadReportData() {
-                $.ajax({
-                    url: '/report',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        const tbody = $('#report-table tbody');
-                        tbody.empty(); // Очистка старых данных
+<h1>Отчет по звонкам от 16.11.24</h1>
 
-                        // Заполнение таблицы новыми данными
-                        data.forEach(function(row) {
-                            const newRow = `
-                                <tr>
-                                    <td>${row.user}</td>
-                                    <td>${row.sent}</td>
-                                    <td>${row.approved}</td>
-                                    <td>${row.deleted}</td>
-                                </tr>`;
-                            tbody.append(newRow);
-                        });
-                    },
-                    error: function(xhr) {
-                        alert("Ошибка при загрузке данных отчета: " + xhr.responseText);
-                    }
-                });
+<table id="report-table">
+    <thead>
+    <tr>
+        <th onclick="sortTable(0)">Менеджер</th>
+        <th onclick="sortTable(1)">Всего</th>
+        <th onclick="sortTable(2)">В таблицу</th>
+        <th onclick="sortTable(3)">Согласование</th>
+        <th onclick="sortTable(4)">Не отправленные</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if report_data %}
+    {% for row in report_data %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[4] }}</td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+        <td colspan="5">Данные отсутствуют</td>
+    </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('index') }}">Вернуться на главную</a>
+
+<script>
+    let sortDirections = {};
+
+    function sortTable(columnIndex) {
+        const table = document.getElementById("report-table");
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        const isAscending = !sortDirections[columnIndex]; // Смена направления сортировки
+        sortDirections[columnIndex] = isAscending;
+
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex].innerText.trim();
+            const cellB = rowB.cells[columnIndex].innerText.trim();
+
+            if (!isNaN(cellA) && !isNaN(cellB)) {
+                // Сортировка чисел
+                return isAscending ? cellA - cellB : cellB - cellA;
             }
-
-            // Загружаем данные при загрузке страницы
-            loadReportData();
-
-            // Обновляем данные отчета каждые 60 секунд (опционально)
-            setInterval(loadReportData, 60000);
+            // Сортировка строк
+            return isAscending
+                ? cellA.localeCompare(cellB, 'ru')
+                : cellB.localeCompare(cellA, 'ru');
         });
-    </script>
+
+        // Перестановка строк в DOM
+        const tbody = table.querySelector("tbody");
+        rows.forEach(row => tbody.appendChild(row));
+    }
+</script>
 </body>
 </html>

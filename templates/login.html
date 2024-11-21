@@ -2,19 +2,19 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Вход менеджера</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_styles.css') }}">
+    <link href="{{ url_for('static', filename='css/login_styles.css') }}" rel="stylesheet">
 </head>
 <body>
-    <h1>Добро пожаловать!</h1>
-    <h2>Введите пароль</h2>
-    <form method="POST" action="{{ url_for('login') }}">
-        <input type="text" name="user_id" placeholder="Введите пароль" required>
-        <button type="submit">Войти</button>
-    </form>
-    <p class="forgot-password">
-        <a href="https://t.me/board_support" target="_blank">Забыли пароль?</a>
-    </p>
+<h1>Добро пожаловать!</h1>
+<h2>Введите пароль</h2>
+<form action="{{ url_for('login') }}" method="POST">
+    <input name="user_id" placeholder="Введите пароль" required type="text">
+    <button type="submit">Войти</button>
+</form>
+<p class="forgot-password">
+    <a href="https://t.me/board_support" target="_blank">Забыли пароль?</a>
+</p>
 </body>
 </html>

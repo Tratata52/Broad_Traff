@@ -4,10 +4,8 @@ import sqlite3
 from datetime import datetime
 
 import gspread
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
+from flask import Flask, render_template, request, redirect, url_for, session
 from oauth2client.service_account import ServiceAccountCredentials
-
-from integration_for_amocrm.approw_leads_for_crm import process_row
 
 logging.basicConfig(filename='ADMINKA/logs/app_process.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
