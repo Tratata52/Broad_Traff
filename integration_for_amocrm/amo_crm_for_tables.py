@@ -6,11 +6,11 @@ import gspread
 import requests
 from oauth2client.service_account import ServiceAccountCredentials
 
-from ADMINKA.config.config import JSON_KEYFILE, LAST_LEAD_ID_FILE, DOMAIN, PIPELINE_ID, STATUS_ID
+from ADMINKA.config.config import JSON_KEYFILE, LAST_LEAD_ID_FILE, DOMAIN, PIPELINE_ID, STATUS_ID, WORKSHEET6
 from ADMINKA.config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4, WORKSHEET5
 from approw_leads_for_crm import headers
-from write_to_gsheet import write_to_google_sheet_styrofoam, write_to_google_sheet_mk_group, \
-    write_to_google_sheet_window, write_to_google_sheet_bath
+from write_to_gsheet import write_to_google_sheet_mk_group, \
+    write_to_google_sheet_bath,write_to_google_sheet_stadart
 
 # Создание директории для логов, если она не существует
 log_dir = 'logs'
@@ -137,13 +137,16 @@ def check_for_new_leads(client):
 
             write_to_google_sheet_bath(WORKSHEET1, phone, name, notes_text)
         elif project_id == "12112":
+            write_to_google_sheet_stadart(WORKSHEET3, phone, name, notes_text)
 
-            write_to_google_sheet_window(WORKSHEET3, phone, name, notes_text)
         elif project_id == "12206":
-            write_to_google_sheet_styrofoam(WORKSHEET4, phone, name, notes_text)
+            write_to_google_sheet_stadart(WORKSHEET4, phone, name, notes_text)
 
         elif project_id == "12205":
-            write_to_google_sheet_styrofoam(WORKSHEET5, phone, name, notes_text)
+            write_to_google_sheet_stadart(WORKSHEET5, phone, name, notes_text)
+
+        elif project_id == "12257":
+            write_to_google_sheet_stadart(WORKSHEET6, phone, name, notes_text)
 
         else:
             logging.warning(f"Пропуск сделки ID {lead_id} - неизвестный ID проекта или отсутствие данных.")

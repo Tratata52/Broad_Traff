@@ -2,12 +2,11 @@ import datetime
 import logging
 
 
-def write_to_google_sheet_example(sheet, name, phone, notes_text):
+def write_to_google_sheet_stadart(sheet, name, phone, notes_text):
     current_date = datetime.now().strftime("%d.%m.%Y")  # Получение текущей даты
-    row_data = [phone, name, notes_text]
+    row_data = [current_date, phone, name, notes_text]
     sheet.insert_row(row_data, index=len(sheet.get_all_values()) + 1)
     logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
-    pass
 
 
 # Запись данных в Google Sheet бани
@@ -29,18 +28,3 @@ def write_to_google_sheet_mk_group(sheet, name, phone, notes_text):
         sheet.get_all_values()) + 1)  # Определяет длину текущих строк и вставляет ниже последней строки
     logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
 
-
-# Запись данных в Google Sheet окна
-def write_to_google_sheet_window(sheet, phone, name, notes_text):
-    current_date = datetime.now().strftime("%d.%m.%Y")  # Получение текущей даты
-    row_data = [current_date, phone, name, notes_text]
-    sheet.insert_row(row_data, index=len(sheet.get_all_values()) + 1)
-    logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")
-
-
-# Запись данных в Google Sheet пенопласт
-def write_to_google_sheet_styrofoam(sheet, phone, name, notes_text):
-    current_date = datetime.now().strftime("%d.%m.%Y")  # Получение текущей даты
-    row_data = [phone, name, notes_text]
-    sheet.insert_row(row_data, index=len(sheet.get_all_values()) + 1)
-    logging.info(f"Добавлена строка: Дата - {current_date}, Имя - {name}, Телефон - {phone}, Примечания - {notes_text}")

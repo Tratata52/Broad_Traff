@@ -26,7 +26,7 @@ DB_FILE_users = 'user_data.db'
 
 # Подключение к Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-JSON_KEYFILE = 'logical-air-353619-d959f6958ff1.json'
+JSON_KEYFILE = 'logical-air-353619-553a6e6c8351.json'
 CREDS = ServiceAccountCredentials.from_json_keyfile_name(JSON_KEYFILE, SCOPE)
 CLIENT = gspread.authorize(CREDS)
 
@@ -35,22 +35,29 @@ CLIENT = gspread.authorize(CREDS)
 
 
 SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-gV-0zTNFVMpYrVeZHvsLsHBAbTX5hfJZClsOhizKoI/edit?gid=1129040397#gid=1129040397'  # бани
-SPREADSHEET_URL2 = 'https://docs.google.com/spreadsheets/d/1nj3nz6rXhWI0QS_Qp_ujYsy8zTByb94VDDyDRkSKDv0/edit?gid=2050218078#gid=2050218078'  # МК групп
-SPREADSHEET_URL3 = 'https://docs.google.com/spreadsheets/d/18odSdZgRfZxDLMt4L7NrDS99XgvX1leOgu80Y4LRKbc/edit?gid=815630126#gid=815630126'  # Окна
+SPREADSHEET_URL2 = 'https://docs.google.com/spreadsheets/d/1nj3nz6rXhWI0QS_Qp_ujYsy8zTByb94VDDyDRkSKDv0/edit?gid=628646920#gid=628646920'  # МК групп
+SPREADSHEET_URL3 = 'https://docs.google.com/spreadsheets/d/18odSdZgRfZxDLMt4L7NrDS99XgvX1leOgu80Y4LRKbc/edit?gid=1731399263#gid=1731399263'  # Окна
 SPREADSHEET_URL4 = 'https://docs.google.com/spreadsheets/d/1MaAra3WOfF95Rjiqu8x859BczyMpeyoJXk8I0rP6qIQ/edit?gid=1151820363#gid=1151820363'  # ПЕНОПЛАСТ
 SPREADSHEET_URL5 = 'https://docs.google.com/spreadsheets/d/1BL9dx_px8Y3KTB2pTwjYnHLnVb99o73nZGBM7R79MsY/edit?gid=1290392330#gid=1290392330'  # ВАША БУКВА
+SPREADSHEET_URL6 = 'https://docs.google.com/spreadsheets/d/1-kzX6WocSupoveBNaXR3JlhTOV75VL-z0roWWDRD2WQ/edit?gid=589735377#gid=589735377' # Мебельный центр Антарес
+SPREADSHEET_URL7 = 'https://docs.google.com/spreadsheets/d/1d6WXOt3gNi6xyhr6UIVADgZnA2rZYgPajo9Yi1UWip0/edit?gid=589735377#gid=589735377' # Лиды ВТ
 
-SPREADSHEET = CLIENT.open_by_url(SPREADSHEET_URL)
-SPREADSHEET2 = CLIENT.open_by_url(SPREADSHEET_URL2)
-SPREADSHEET3 = CLIENT.open_by_url(SPREADSHEET_URL3)
-SPREADSHEET4 = CLIENT.open_by_url(SPREADSHEET_URL4)
-SPREADSHEET5 = CLIENT.open_by_url(SPREADSHEET_URL5)
+SPREADSHEET = CLIENT.open_by_url(SPREADSHEET_URL) # бани
+SPREADSHEET2 = CLIENT.open_by_url(SPREADSHEET_URL2) # МК групп
+SPREADSHEET3 = CLIENT.open_by_url(SPREADSHEET_URL3) # Окна
+SPREADSHEET4 = CLIENT.open_by_url(SPREADSHEET_URL4) # ПЕНОПЛАСТ
+SPREADSHEET5 = CLIENT.open_by_url(SPREADSHEET_URL5) # ВАША БУКВА
+SPREADSHEET6 = CLIENT.open_by_url(SPREADSHEET_URL6) # Мебельный центр Антарес
+SPREADSHEET7 = CLIENT.open_by_url(SPREADSHEET_URL7) # Лиды ВТ
+
 
 WORKSHEET1 = SPREADSHEET.get_worksheet(0)  # бани
 WORKSHEET2 = SPREADSHEET2.get_worksheet(0)  # МК групп
 WORKSHEET3 = SPREADSHEET3.get_worksheet(0)  # ОКНА
 WORKSHEET4 = SPREADSHEET4.get_worksheet(0)  # ПЕНОПЛАСТ
-WORKSHEET5 = SPREADSHEET5.get_worksheet(0)  # реклама буква ю
+WORKSHEET5 = SPREADSHEET5.get_worksheet(0)  # реклама ваша буква
+WORKSHEET6 = SPREADSHEET6.get_worksheet(0) # Мебельный центр Антарес
+WORKSHEET7 =SPREADSHEET7.get_worksheet(0) # Лиды ВТ
 
 headers = {
     'Authorization': f'Bearer {token_bt_crm}',

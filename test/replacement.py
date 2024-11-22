@@ -1,7 +1,7 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-from config.config import JSON_KEYFILE, SPREADSHEET_URL2
+from ADMINKA.config.config import JSON_KEYFILE, SPREADSHEET_URL2
 
 # Устанавливаем область доступа к API Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
