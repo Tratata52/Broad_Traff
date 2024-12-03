@@ -272,15 +272,21 @@ def process_audio(file_path, call, mp3_url):
 
 
 # Основная функция
+# Основная функция
 def main():
     init_db()
 
     while True:
-        clear_records_folder()
-        project_ids = [11962, 11766, 12112, 12206, 12205, 12257]  # Укажите нужные project_id
-        check_for_new_calls(project_ids)
-        print('Повторный запрос через 10 минут')
-        time.sleep(600)  # Задержка между проверками
+        try:
+            clear_records_folder()
+            project_ids = [11962, 11766, 12112, 12206, 12205, 12257, 12258, 12264,12265]  # Укажите нужные project_id
+            check_for_new_calls(project_ids)
+            print('Повторный запрос через 10 минут')
+            time.sleep(600)  # Задержка между проверками
+        except Exception as e:
+            logging.error(f"Произошла ошибка: {e}. Повторный запуск через 1 минуту.")
+            print(f"Ошибка: {e}. Повторный запуск через 1 минуту.")
+            time.sleep(60)  # Задержка перед повторным запуском
 
 
 if __name__ == "__main__":

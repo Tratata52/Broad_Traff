@@ -14,7 +14,6 @@ def send_lead_table_standart(call, WORKSHEET):
         logging.error(f"Ошибка при добавлении строки в таблицу: {e} | Данные: {row}")
 
 
-
 def send_lead_to_table_bath(call, WORKSHEET):
     current_date = datetime.now().strftime("%d.%m.%Y")
     row = [call[9], call[12], call[11]]

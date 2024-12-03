@@ -1,10 +1,10 @@
 import requests
 
-from approw_leads_for_crm import token_bt_crm as tk
+from ADMINKA.config.config import token_bt_crm
 
 # Заголовки для запросов
 headers = {
-    'Authorization': f'Bearer {tk}',
+    'Authorization': f'Bearer {token_bt_crm}',
     'Content-Type': 'application/json'
 }
 

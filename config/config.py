@@ -8,7 +8,7 @@ USERS_URL = f'{BASE_URL}/api/users'
 CALL_HISTORY_URL = f"{BASE_URL}/api/report/call_history"
 VOICES_URL = f"{BASE_URL}/api/report/voices"
 LAST_CALL_ID_FILE = 'last_call_id_all.txt'
-GROQ_API_KEY = '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'
+GROQ_API_KEY = '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'
 token_bt_crm = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjRmODcwMTNlNTY0NmEzMDgyMjNlM2EzMzkyNjM3Zjk4NDNlNDQyNDNmMmFiYzI0NDcwMGQyZWI4ZWU2MTUzZmZmZDZiNzdiZTUyMzYyMzI1In0.eyJhdWQiOiJiNTU1ZGU5MS04Yjc3LTQ4ZWUtYjRkZC01MmM5NGFhMTJlY2YiLCJqdGkiOiI0Zjg3MDEzZTU2NDZhMzA4MjIzZTNhMzM5MjYzN2Y5ODQzZTQ0MjQzZjJhYmMyNDQ3MDBkMmViOGVlNjE1M2ZmZmQ2Yjc3YmU1MjM2MjMyNSIsImlhdCI6MTcyODExMDg3MCwibmJmIjoxNzI4MTEwODcwLCJleHAiOjE3NjcxMzkyMDAsInN1YiI6IjExMTM0NDk4IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNzgwNDE0LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiNDE5MjUwYTAtMDVlOS00NWY1LWJhNGUtZWYwYjA4NDdjOTI4IiwiYXBpX2RvbWFpbiI6ImFwaS1iLmFtb2NybS5ydSJ9.BELBcwM5fJ_wAAoTB8ysbJ598sXrWId5cI-q-_HxBgUcM2hhQlUDIIheXQNkQu5S3aNNdtA5rtbmG3WVqJeBk4JYzmyC7SF4QyGXNbGVmKGheeprc9-FicxlhxvLaXMQ59AwZYNyoNT7NheZykqppXTNO5aWbwQ5Osoy7v6r1uRZb8Dg8zMyJG2qSUqyhFXnQS1dtnDeBYOvQ9ojuluFWnh1DbCfpeuGSQhTKF-SqE2rma6MwfPWGAJjhpia3CI3iWsV3C3247ySYCESv6yBNdVB1HuPBFR9J3FqlcG52jXckCS5Eg42VTTb8gBO8brEc-Coap8QPM_KHSxSZDgXYg'
 access_token_mk = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjZkNzM4ZWI0NjFhMWQ3ZjdkY2Q4NDEyZmUxNzI2NzUyMDdmNWU2NTQ4MGU3ODZmMWQwMTEyOTA1NTRhZDUwMzJhNTk3OGU3YzVkYTNkYTk2In0.eyJhdWQiOiJjYjExNWMyYi1hNGQ0LTRhM2UtYWIxZS0xMzM4YmZiNTdiODUiLCJqdGkiOiI2ZDczOGViNDYxYTFkN2Y3ZGNkODQxMmZlMTcyNjc1MjA3ZjVlNjU0ODBlNzg2ZjFkMDExMjkwNTU0YWQ1MDMyYTU5NzhlN2M1ZGEzZGE5NiIsImlhdCI6MTcyNDE2NTQ1MiwibmJmIjoxNzI0MTY1NDUyLCJleHAiOjE3MzU2MDMyMDAsInN1YiI6IjExMzg0NzYyIiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxODk2MDg2LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiYzA5NDAxZmMtYmU3Ny00MmEyLTk1MjgtM2QzN2I2YzFhYzdhIiwiYXBpX2RvbWFpbiI6ImFwaS1iLmFtb2NybS5ydSJ9.D9MTx2wjje3EoE-r0GQMlDL6VrfMfOMtnbw2SHWpWLb2xR0HNmJP-mI_he3HNrVtfMgeuIDY1-qMbluDt5Do089hm7IPjqjj6i3veQU4R7wl5zEBZ6TNW2mDVdyQStUJ5hPmM9v4p_vbb8TNPj2XH1Nv_kIZ_y4jzG33bpsPx3zs0pkCQbyDbrPl6hiOUk6p4MgMvN5khO5727KLbYlX255k3dX-iaWkgGVXXlKPe9k1FThCP8M3LR8phKp94yWfesloN_Vw8en_bgpdmaKjwWx3JCLJU3g3GX5aEWDzFUNL_xYVGBi4wzoR2yRClxV9RoRaAeqSXPVw_vIhwPdlBw'
 
@@ -21,7 +21,9 @@ STATUS_ID = "70487718"  # ID статуса
 LAST_LEAD_ID_FILE = "last_lead_id.txt"
 
 # БАЗЫ ДАННЫХ
+# DB_FILE = 'leads.db'
 DB_FILE = 'leads.db'
+
 DB_FILE_users = 'user_data.db'
 
 # Подключение к Google Sheets
@@ -41,6 +43,8 @@ SPREADSHEET_URL4 = 'https://docs.google.com/spreadsheets/d/1MaAra3WOfF95Rjiqu8x8
 SPREADSHEET_URL5 = 'https://docs.google.com/spreadsheets/d/1BL9dx_px8Y3KTB2pTwjYnHLnVb99o73nZGBM7R79MsY/edit?gid=1290392330#gid=1290392330'  # ВАША БУКВА
 SPREADSHEET_URL6 = 'https://docs.google.com/spreadsheets/d/1-kzX6WocSupoveBNaXR3JlhTOV75VL-z0roWWDRD2WQ/edit?gid=589735377#gid=589735377' # Мебельный центр Антарес
 SPREADSHEET_URL7 = 'https://docs.google.com/spreadsheets/d/1d6WXOt3gNi6xyhr6UIVADgZnA2rZYgPajo9Yi1UWip0/edit?gid=589735377#gid=589735377' # Лиды ВТ
+SPREADSHEET_URL8 = 'https://docs.google.com/spreadsheets/d/1v9EptpmKluRNOOd12_V4LoCLEwl4RRPqdBnRnWFLyn0/edit?gid=1151820363#gid=1151820363' # Метрика окон
+SPREADSHEET_URL9 = 'https://docs.google.com/spreadsheets/d/1XMyu-wPqBORTifefM1dcWjp6-2gKc1WX32u-VA-KtXA/edit?gid=1151820363#gid=1151820363' # Топ кар
 
 SPREADSHEET = CLIENT.open_by_url(SPREADSHEET_URL) # бани
 SPREADSHEET2 = CLIENT.open_by_url(SPREADSHEET_URL2) # МК групп
@@ -49,6 +53,8 @@ SPREADSHEET4 = CLIENT.open_by_url(SPREADSHEET_URL4) # ПЕНОПЛАСТ
 SPREADSHEET5 = CLIENT.open_by_url(SPREADSHEET_URL5) # ВАША БУКВА
 SPREADSHEET6 = CLIENT.open_by_url(SPREADSHEET_URL6) # Мебельный центр Антарес
 SPREADSHEET7 = CLIENT.open_by_url(SPREADSHEET_URL7) # Лиды ВТ
+SPREADSHEET8 = CLIENT.open_by_url(SPREADSHEET_URL8) # Метрика окон
+SPREADSHEET9 = CLIENT.open_by_url(SPREADSHEET_URL9) # Топ кар
 
 
 WORKSHEET1 = SPREADSHEET.get_worksheet(0)  # бани
@@ -58,6 +64,8 @@ WORKSHEET4 = SPREADSHEET4.get_worksheet(0)  # ПЕНОПЛАСТ
 WORKSHEET5 = SPREADSHEET5.get_worksheet(0)  # реклама ваша буква
 WORKSHEET6 = SPREADSHEET6.get_worksheet(0) # Мебельный центр Антарес
 WORKSHEET7 =SPREADSHEET7.get_worksheet(0) # Лиды ВТ
+WORKSHEET8 =SPREADSHEET8.get_worksheet(0) # Метрика окон
+WORKSHEET9 =SPREADSHEET9.get_worksheet(0) # Топ кар
 
 headers = {
     'Authorization': f'Bearer {token_bt_crm}',

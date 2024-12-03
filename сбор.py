@@ -1,21 +1,31 @@
 import json
 from datetime import datetime
 
+
 import requests
 
+from ADMINKA.config.config import API_KEY
+
+
 # Ваш API-ключ
-api_key = "CrWtR636gPGkQvh4dE6Pq3fjxXWyJXaw"
+
+
+def get_today_date():
+    return datetime.now().strftime("%d.%m.%Y")
+
+
 
 # Параметры запроса
 params = {
     "begin_date": "1.11.2024",  # Начало периода
-    "end_date": "21.11.2024",  # Конец периода
-    "user_ids[]": [12327, 12477, 12330, 12532, 12511, 12408, 12331, 12333, 12561, 12357, 12575, 12461, 12462, 12463],
+    "end_date": get_today_date(),  # Конец периода
+    "user_ids[]": [12327,12477,12330,12532,12511,12408,12331,12616,12614,12333,12615,12561,12610,12594,12357,12595,12575,12461,12462,12463]
 }
+
 
 # Заголовки запроса
 headers = {
-    "X-API-KEY": api_key
+    "X-API-KEY": API_KEY
 }
 
 # URL для получения звонков
@@ -97,7 +107,7 @@ if response.status_code == 200:
         result_data[date][project_name][contact_name]["звонки"] += 1
 
     # Сохранение результатов в JSON файл
-    with open('../../ADMINKA/static/compact_contact_sources.json', 'w', encoding='utf-8') as f:
+    with open('static/compact_contact_sources.json', 'w', encoding='utf-8') as f:
         json.dump(result_data, f, ensure_ascii=False, indent=4)
 
     print('Завершено')

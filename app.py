@@ -4,7 +4,8 @@ import sqlite3
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
 
-from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4, WORKSHEET5, DB_FILE, DB_FILE_users, WORKSHEET6
+from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4, WORKSHEET5, DB_FILE, DB_FILE_users, \
+    WORKSHEET6, WORKSHEET7, WORKSHEET8, WORKSHEET9
 from integration_for_amocrm.approw_leads_for_crm import process_row
 from requests_to_db import get_db_connection, get_duplicates, save_comment
 from send_lead_to_tables import send_lead_to_table_bath, send_lead_to_table_mk_group, send_lead_table_standart
@@ -194,6 +195,7 @@ def index():
 
 
 @app.route('/send/<int:call_id>', methods=['POST'])
+@login_required
 def send_lead(call_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -216,7 +218,14 @@ def send_lead(call_id):
         elif project_id == "12205":  # ваша буква
             send_lead_table_standart(call, WORKSHEET5)
         elif project_id == '12257':
-            send_lead_table_standart(call,WORKSHEET6)
+            send_lead_table_standart(call, WORKSHEET6)
+        elif project_id == '12258':
+            send_lead_table_standart(call, WORKSHEET7)
+        elif project_id == '12264':
+            send_lead_table_standart(call, WORKSHEET8)
+        elif project_id == '12265':
+            send_lead_table_standart(call, WORKSHEET9)
+
         else:
             return make_response('Неизвестный проект', 400)
 
@@ -266,6 +275,7 @@ def logout():
 
 
 @app.route('/approve', methods=['POST'])
+@login_required
 def approve():
     data = request.json
     row_id = data.get('id')  # Получаем ID строки
@@ -310,6 +320,7 @@ def approve():
 
 
 @app.route('/save_lead', methods=['POST'])
+@login_required
 def save_data():
     data = request.get_json()
     call_id = data.get('id')
@@ -325,9 +336,10 @@ def save_data():
 
 
 @app.route('/rep')
+@login_required
 def leads_page():
     return render_template('analisys.html')  # Новая страница с фильтрами и таблицей
 
+
 if __name__ == '__main__':
     app.run(debug=True)
-
