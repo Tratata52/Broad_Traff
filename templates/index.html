@@ -5,6 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>🎄HotLeads🎄</title>
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark_styles.css') }}" id="theme-style">
 
     <style>
         /* Временный стиль для плавного перехода темы */
@@ -13,50 +14,39 @@
         }
     </style>
 
-    <script>
-        // Проверка сохраненной темы в localStorage
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.write(`<link rel="stylesheet" href="${savedTheme}" id="theme-style">`);
-        } else {
-            document.write(`<link rel="stylesheet" href="{{ url_for('static', filename=current_theme) }}" id="theme-style">`);
-        }
-
-        // Функция для переключения размера комментария
-        function toggleCommentSize(element) {
-            element.classList.toggle("expanded");
-        }
-    </script>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
 <h1 class="hotleads-title">
     <a style="text-decoration: none; color: inherit;">🎄 HotLeads 🎄</a>
-    <a href="{{ url_for('report') }}" style="text-decoration: none; color: inherit;">Отчет по отправленным</a>
+    <div class="dropdown">
+        <button class="dropdown-button" style="text-decoration: none; color: inherit;">Отчёты</button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('report') }}">Отчет по менеджерам</a>
+            <a href="{{ url_for('report_projects') }}">Отчет по проектам</a>
+            <a href="{{ url_for('defective_leads') }}">Отчет по браку</a>
+        </div>
+    </div>
     <a href="{{ url_for('leads_page') }}" style="text-decoration: none; color: inherit;">Анализ трафика</a>
-
-
+    <a href="{{ url_for('calc_page') }}" style="text-decoration: none; color: inherit;">Калькулятор ЗП</a>
 </h1>
 
 <!-- Всплывающее окно -->
 <div class="popup-overlay" id="popup-overlay"></div>
 <div class="popup" id="popup">
     <div class="popup-content" id="popup-content"></div>
-
 </div>
 
 <div class="header-container">
     {% if session.manager_name %}
     <span class="welcome-message">Добро пожаловать, {{ session.manager_name }}!</span>
     <a class="logout-button" href="{{ url_for('logout') }}">Выйти</a>
-    <span class="theme-switcher" id="theme-toggle" title="Переключить тему">🌚</span>
     {% endif %}
 </div>
 
 <form action="{{ url_for('index') }}" method="GET">
-    <input id="current-theme" name="current_theme" type="hidden" value="{{ current_theme }}">
+    <input id="current-theme" name="current_theme" type="hidden" value="dark_styles.css">
 
     {% if is_admin %}
     <label>Менеджер:</label>
@@ -67,7 +57,6 @@
             {{ manager[0] }}
         </option>
         {% endfor %}
-
     </select>
     {% endif %}
 
@@ -79,7 +68,6 @@
             {{ project[0] }}
         </option>
         {% endfor %}
-
     </select>
 </form>
 
@@ -104,10 +92,7 @@
                 <div class="progress-container" onclick="setProgress(event, '{{ call[0] }}')">
                     <div class="progress-bar"></div>
                 </div>
-                <div class="time-display">
-                    <span class="current-time" id="current-time-{{ call[0] }}">00:00</span> /
-                    <span class="duration" id="duration-{{ call[0] }}">00:00</span>
-                </div>
+
                 <select class="speed-selector" id="speed-{{ call[0] }}" onchange="setPlaybackRate('{{ call[0] }}')">
                     <option value="0.5">0.5x</option>
                     <option selected value="1">1x</option>
@@ -128,68 +113,40 @@
                 {% if call[9] in duplicates %}
                 <button class="delete-button" onclick="deleteRow({{ call[0] }})" type="button">Удалить</button>
                 {% endif %}
-                <button class="approve-btn" onclick="approveRow({{ call[0] }})" type="button">Согласовать</button>
+                <button class="approve-btn" onclick="approveRow({{ call[0] }})" type="button">Брак</button>
             </div>
         </td>
         <td>
-
             <span class="question-icon" onclick="openCommentPopup('{{ call[10] }}')">🔮</span>
         </td>
-
     </tr>
     {% endfor %}
     </tbody>
-</table>
-</tbody>
 </table>
 
 <script>
 
     function openCommentPopup(commentText) {
-     // Проверяем, если текст комментария пустой, показываем сообщение "Комментарий отсутствует"
-     const displayText = commentText ? commentText : "Комментарий отсутствует";
-     showPopup(displayText);
-     }
+        const displayText = commentText ? commentText : "Комментарий отсутствует";
+        showPopup(displayText);
+    }
 
-     function showPopup(commentText) {
-         // Отображаем всплывающее окно с комментарием от ИИ
-         document.getElementById('popup-content').innerText = commentText;
-         document.getElementById('popup').style.display = 'block';
-         document.getElementById('popup-overlay').style.display = 'block';
-     }
+    function showPopup(commentText) {
+        document.getElementById('popup-content').innerText = commentText;
+        document.getElementById('popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+    }
 
-     // Функция для закрытия окна
-     function closePopup() {
-         document.getElementById('popup').style.display = 'none';
-         document.getElementById('popup-overlay').style.display = 'none';
-     }
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+        document.getElementById('popup-overlay').style.display = 'none';
+    }
 
-     // Закрытие окна при нажатии на оверлей
-     document.getElementById('popup-overlay').addEventListener('click', closePopup);
+    document.getElementById('popup-overlay').addEventListener('click', closePopup);
 
+    const duplicates = {{ duplicates | tojson }};
 
-     // Переключение темы
-     const themeToggle = document.getElementById('theme-toggle');
-     const themeStyle = document.getElementById('theme-style');
-
-     themeToggle.addEventListener('click', function() {
-         const currentTheme = themeStyle.getAttribute('href');
-
-         if (currentTheme.includes('white_styles.css')) {
-             themeStyle.setAttribute('href', "{{ url_for('static', filename='css/dark_styles.css') }}");
-             themeToggle.innerHTML = '☀️';
-             localStorage.setItem('theme', "{{ url_for('static', filename='css/dark_styles.css') }}");
-         } else {
-             themeStyle.setAttribute('href', "{{ url_for('static', filename='css/white_styles.css') }}");
-             themeToggle.innerHTML = '🌚';
-             localStorage.setItem('theme', "{{ url_for('static', filename='css/white_styles.css') }}");
-         }
-         document.getElementById('current-theme').value = themeStyle.getAttribute('href');
-     });
-
-     const duplicates = {{ duplicates | tojson }};
-
-     function checkDuplicates() {
+    function checkDuplicates() {
         const rows = document.querySelectorAll('tbody tr');
         const phoneNumbers = Array.from(rows).map(row => row.querySelector('td:nth-child(2)').innerText);
         const duplicatePhones = phoneNumbers.filter(phone => duplicates.includes(phone));
@@ -200,85 +157,81 @@
                 row.classList.add('duplicate-phone');
             }
         });
-}
-
-
-     document.addEventListener('DOMContentLoaded', function() {
-         checkDuplicates();
-     });
-
-     function saveRow(callId) {
-         const customerName = document.querySelector(`#call-${callId} [data-field="name"]`).value;
-         const comment = document.querySelector(`#call-${callId} [data-field="comment"]`).value;
-
-         $.ajax({
-             type: 'POST',
-             url: '/save_lead',
-             data: JSON.stringify({
-                 id: callId,
-                 name_note: customerName,
-                 note: comment
-             }),
-             contentType: 'application/json'
-         }).done(function(response) {
-             if (response.status === "success") {
-                 alert("Данные успешно сохранены!");
-             } else {
-                 alert("Ошибка: " + response.message);
-             }
-         }).fail(function(xhr) {
-             alert("Ошибка при сохранении данных: " + xhr.responseText);
-         });
-     }
-
-     function sendRow(callId) {
-         $.ajax({
-             type: 'POST',
-             url: `/send/${callId}`,
-             data: JSON.stringify({ id: callId }),
-             contentType: 'application/json'
-         }).done(function(response) {
-             if (response.status === "success") {
-                 location.reload();  // Обновляет всю страницу
-                 alert("Данные успешно отправлены в таблицу!");
-
-
-             } else {
-                 alert("Ошибка: " + response.message);
-             }
-         }).fail(function(xhr) {
-             alert("Ошибка при отправке данных: " + xhr.responseText);
-         });
- }
-
-     function deleteRow(callId) {
-    if (!confirm("Вы уверены, что хотите удалить этот звонок?")) {
-        return;
     }
 
-    $.ajax({
-        type: 'DELETE',
-        url: `/delete/${callId}`,
-        contentType: 'application/json'
-    }).done(function(response) {
-        if (response.status === "success") {
-            const callElement = document.getElementById(`call-${callId}`);
-            if (callElement) {
-                callElement.remove();
-            }
-            location.reload();  // Обновляет всю страницу
-            alert("Звонок успешно удален!");
-
-        } else {
-            alert("Ошибка: " + response.message);
-        }
-    }).fail(function(xhr) {
-        alert("Ошибка при удалении звонка: " + xhr.responseText);
+    document.addEventListener('DOMContentLoaded', function() {
+        checkDuplicates();
     });
-}
 
-     function approveRow(callId) {
-        if (!confirm("Вы уверены, что хотите согласовать этот звонок?")) {
+    function saveRow(callId) {
+        const customerName = document.querySelector(`#call-${callId} [data-field="name"]`).value;
+        const comment = document.querySelector(`#call-${callId} [data-field="comment"]`).value;
+
+        $.ajax({
+            type: 'POST',
+            url: '/save_lead',
+            data: JSON.stringify({
+                id: callId,
+                name_note: customerName,
+                note: comment
+            }),
+            contentType: 'application/json'
+        }).done(function(response) {
+            if (response.status === "success") {
+                alert("Данные успешно сохранены!");
+            } else {
+                alert("Ошибка: " + response.message);
+            }
+        }).fail(function(xhr) {
+            alert("Ошибка при сохранении данных: " + xhr.responseText);
+        });
+    }
+
+    function sendRow(callId) {
+        $.ajax({
+            type: 'POST',
+            url: `/send/${callId}`,
+            data: JSON.stringify({ id: callId }),
+            contentType: 'application/json'
+        }).done(function(response) {
+            if (response.status === "success") {
+                location.reload();
+                alert("Данные успешно отправлены в таблицу!");
+            } else {
+                alert("Ошибка: " + response.message);
+            }
+        }).fail(function(xhr) {
+            alert("Ошибка при отправке данных: " + xhr.responseText);
+        });
+    }
+
+    function deleteRow(callId) {
+        if (!confirm("Вы уверены, что хотите удалить этот звонок?")) {
+            return;
+        }
+
+        $.ajax({
+            type: 'DELETE',
+            url: `/delete/${callId}`,
+            contentType: 'application/json'
+        }).done(function(response) {
+            if (response.status === "success") {
+                const callElement = document.getElementById(`call-${callId}`);
+                if (callElement) {
+                    callElement.remove();
+                }
+                location.reload();
+                alert("Звонок успешно удален!");
+            } else {
+                alert("Ошибка: " + response.message);
+            }
+        }).fail(function(xhr) {
+            alert("Ошибка при удалении звонка: " + xhr.responseText);
+        });
+    }
+
+    function approveRow(callId) {
+        if (!confirm("Вы уверены, что хотите забраковать этот лид?")) {
             return;
         }
 
@@ -289,55 +242,49 @@
             contentType: 'application/json'
         }).done(function(response) {
             if (response.status === "success") {
-                location.reload();  // Обновляет всю страницу
-                alert("Звонок отправлен на согласование!");
+                location.reload();
+                alert("Лид забракован!");
             } else {
                 alert("Ошибка: " + response.message);
             }
         }).fail(function(xhr) {
-            alert("Ошибка при согласовании звонка: " + xhr.responseText);
+            alert("Ошибка при браковке лида: " + xhr.responseText);
         });
     }
 
-     function togglePlay(callId) {
-         const audio = document.getElementById(`audio-${callId}`);
-         const playBtn = document.querySelector(`#player-${callId} .play-btn`);
-         const pauseBtn = document.querySelector(`#player-${callId} .pause-btn`);
+    function togglePlay(callId) {
+        const audio = document.getElementById(`audio-${callId}`);
+        const playBtn = document.querySelector(`#player-${callId} .play-btn`);
+        const pauseBtn = document.querySelector(`#player-${callId} .pause-btn`);
 
-         if (audio.paused) {
-             audio.play();
-             playBtn.style.display = 'none';
-             pauseBtn.style.display = 'inline-block';
-         } else {
-             audio.pause();
-             playBtn.style.display = 'inline-block';
-             pauseBtn.style.display = 'none';
-         }
-     }
+        if (audio.paused) {
+            audio.play();
+            playBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+        } else {
+            audio.pause();
+            playBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+        }
+    }
 
-     function setProgress(event, callId) {
-         const progressBar = document.querySelector(`#player-${callId} .progress-bar`);
-         const progressContainer = document.querySelector(`#player-${callId} .progress-container`);
-         const audio = document.getElementById(`audio-${callId}`);
-         const offsetX = event.offsetX;
-         const width = progressContainer.offsetWidth;
-         const percentage = offsetX / width;
-         const progress = percentage * audio.duration;
-         audio.currentTime = progress;
-         progressBar.style.width = (percentage * 100) + '%';
-     }
+    function setProgress(event, callId) {
+        const progressBar = document.querySelector(`#player-${callId} .progress-bar`);
+        const progressContainer = document.querySelector(`#player-${callId} .progress-container`);
+        const audio = document.getElementById(`audio-${callId}`);
+        const offsetX = event.offsetX;
+        const width = progressContainer.offsetWidth;
+        const percentage = offsetX / width;
+        const progress = percentage * audio.duration;
+        audio.currentTime = progress;
+        progressBar.style.width = `${percentage * 100}%`;
+    }
 
-     function setPlaybackRate(callId) {
-         const audio = document.getElementById(`audio-${callId}`);
-         const speed = document.getElementById(`speed-${callId}`).value;
-         audio.playbackRate = parseFloat(speed);
-     }
-     setInterval(function() {
-     location.reload();
-
-    }, 180000); // 180000 миллисекунд = 3 минуты
-
-
+    function setPlaybackRate(callId) {
+        const playbackRate = document.getElementById(`speed-${callId}`).value;
+        const audio = document.getElementById(`audio-${callId}`);
+        audio.playbackRate = parseFloat(playbackRate);
+    }
 </script>
 
 </body>

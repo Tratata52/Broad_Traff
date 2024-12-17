@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор зарплаты</title>
+    <link href="{{ url_for('static', filename='css/dark_styles.css') }}" rel="stylesheet">
+
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+        label { display: block; margin-top: 10px; }
+        input, select { width: 100%; padding: 5px; margin-top: 5px; }
+        button { margin-top: 20px; padding: 10px 20px; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+
+<h1>Калькулятор зарплаты</h1>
+
+<label>
+    Должность:
+    <select id="position">
+        <option value="operator">Оператор (25 000 руб.)</option>
+        <option value="expert">Эксперт (30 000 руб.)</option>
+        <option value="manager">Менеджер (35 000 руб.)</option>
+        <option value="assistant">Помощник (20 000 руб.)</option>
+    </select>
+</label>
+
+<label>
+    Месяц:
+    <select id="month">
+        <option value="1">Январь</option>
+        <option value="2">Февраль</option>
+        <option value="3">Март</option>
+        <option value="4">Апрель</option>
+        <option value="5">Май</option>
+        <option value="6">Июнь</option>
+        <option value="7">Июль</option>
+        <option value="8">Август</option>
+        <option value="9">Сентябрь</option>
+        <option value="10">Октябрь</option>
+        <option value="11">Ноябрь</option>
+        <option value="12">Декабрь</option>
+    </select>
+</label>
+
+<label>
+    Количество рабочих дней в месяце (по умолчанию заполняется автоматически):
+    <input type="number" id="workingDays" min="1" max="31">
+</label>
+
+<label>
+    Количество часов работы в день:
+    <input type="number" id="dailyHours" min="0" step="0.1">
+</label>
+
+<label>
+    Переработанные дни:
+    <input type="number" id="overtimeDays" min="0" value="0">
+</label>
+
+<label>
+    Переработанные часы:
+    <input type="number" id="overtimeHours" min="0" value="0">
+</label>
+
+<label>
+    Количество сделанных лидов:
+    <input type="number" id="leads" min="0" value="0">
+</label>
+
+<button onclick="calculateSalary()">Рассчитать зарплату</button>
+
+<div class="result" id="result"></div>
+
+<script>
+    function calculateSalary() {
+      // Получение значений из полей ввода
+      const position = document.getElementById('position').value;
+      const month = parseInt(document.getElementById('month').value);
+      let workingDays = parseInt(document.getElementById('workingDays').value);
+      let dailyHours = parseFloat(document.getElementById('dailyHours').value);
+      const overtimeDays = parseInt(document.getElementById('overtimeDays').value) || 0;
+      const overtimeHours = parseFloat(document.getElementById('overtimeHours').value) || 0;
+      const leads = parseInt(document.getElementById('leads').value) || 0;
+
+      // Базовые оклады
+      const baseSalaries = {
+        'operator': 25000,
+        'expert': 30000,
+        'manager': 35000,
+        'assistant': 20000
+      };
+
+      // Получение базового оклада
+      const baseSalary = baseSalaries[position];
+
+      // Получение количества рабочих дней в месяце
+      const standardWorkingDays = getWorkingDaysInMonth(month);
+      if (!workingDays || workingDays > standardWorkingDays) {
+        workingDays = standardWorkingDays;
+        document.getElementById('workingDays').value = workingDays;
+      }
+
+      // Если пользователь не ввел часы работы в день, считаем 0
+      if (!dailyHours) {
+        dailyHours = 0;
+      }
+
+      // Стандартные часы в месяце
+      const standardMonthlyHours = standardWorkingDays * 9;
+
+      // Фактические отработанные часы
+      const actualHours = (workingDays * dailyHours) + (overtimeDays * 9) + overtimeHours;
+
+      // Корректировка оклада
+      const adjustedSalary = (baseSalary * actualHours) / standardMonthlyHours;
+
+      // Корректировка KPI по лидам
+      const kpiThresholds = [
+        { leads: 100, bonus: 0.20 },
+        { leads: 150, bonus: 0.50 },
+        { leads: 200, bonus: 0.80 },
+        { leads: 250, bonus: 1.00 },
+        { leads: 280, bonus: 1.20 },
+        { leads: 300, bonus: 1.50 }
+      ];
+
+      // Корректировка KPI по фактическим часам
+      const kpiAdjustmentFactor = actualHours / standardMonthlyHours;
+
+      // Применение корректировки к KPI порогам
+      const adjustedKpiThresholds = kpiThresholds.map(item => {
+        return {
+          leads: Math.round(item.leads * kpiAdjustmentFactor),
+          bonus: item.bonus
+        };
+      });
+
+      // Определение бонусного процента
+      let bonusPercentage = 0;
+      for (let i = adjustedKpiThresholds.length - 1; i >= 0; i--) {
+        if (leads >= adjustedKpiThresholds[i].leads) {
+          bonusPercentage = adjustedKpiThresholds[i].bonus;
+          break;
+        }
+      }
+
+      // Расчет премии
+      const bonusAmount = adjustedSalary * bonusPercentage;
+
+      // Дополнительная выплата за лиды свыше 300 (по стандартному графику)
+      let extraLeadsPayment = 0;
+      const adjusted300Leads = Math.round(300 * kpiAdjustmentFactor);
+      if (leads > adjusted300Leads) {
+        const extraLeads = leads - adjusted300Leads;
+        extraLeadsPayment = extraLeads * 100; // 100 руб. за каждый лид сверх 300
+      }
+
+      // Итоговая зарплата
+      const totalSalary = adjustedSalary + bonusAmount + extraLeadsPayment;
+
+      // Вывод результатов
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <p><strong>Итоговая зарплата:</strong> ${totalSalary.toFixed(2)} руб.</p>
+        <p>Оклад с учетом отработанных часов: ${adjustedSalary.toFixed(2)} руб.</p>
+        <p>Премия (${(bonusPercentage * 100).toFixed(0)}%): ${bonusAmount.toFixed(2)} руб.</p>
+        <p>Доплата за лиды сверх плана: ${extraLeadsPayment.toFixed(2)} руб.</p>
+      `;
+    }
+
+    // Функция для получения количества рабочих дней в месяце
+    function getWorkingDaysInMonth(month) {
+      // Примерное количество рабочих дней в каждом месяце
+      const workingDaysPerMonth = {
+        1: 17, // Январь
+        2: 20, // Февраль
+        3: 22, // Март
+        4: 21, // Апрель
+        5: 20, // Май
+        6: 22, // Июнь
+        7: 21, // Июль
+        8: 23, // Август
+        9: 21, // Сентябрь
+        10: 22, // Октябрь
+        11: 21, // Ноябрь
+        12: 22  // Декабрь
+      };
+      return workingDaysPerMonth[month] || 22; // Если месяц не найден, вернуть 22
+    }
+</script>
+
+</body>
+</html>

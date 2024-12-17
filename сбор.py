@@ -5,6 +5,7 @@ from datetime import datetime
 import requests
 
 from ADMINKA.config.config import API_KEY
+from ADMINKA.requests_to_db import get_user_ids
 
 
 # Ваш API-ключ
@@ -13,13 +14,13 @@ from ADMINKA.config.config import API_KEY
 def get_today_date():
     return datetime.now().strftime("%d.%m.%Y")
 
-
+user_ids = get_user_ids()
 
 # Параметры запроса
 params = {
     "begin_date": "1.11.2024",  # Начало периода
     "end_date": get_today_date(),  # Конец периода
-    "user_ids[]": [12327,12477,12330,12532,12511,12408,12331,12616,12614,12333,12615,12561,12610,12594,12357,12595,12575,12461,12462,12463]
+    "user_ids[]": user_ids,
 }
 
 
@@ -58,7 +59,7 @@ if response.status_code == 200:
 
     # Проход по каждому звонку
     for x in json_data:
-        project_name = x.get('project_name', 'Неизвестный проект')[:100]
+        project_name = x.get('project_name', 'Неизвестный проект')
         contact_name = x.get('contact_name', 'Неизвестный источник')
         call_result_name = x.get('call_result_name', 'Неизвестный статус')
         created_at = x.get('created_at', 'Неизвестная дата')

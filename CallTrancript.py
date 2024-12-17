@@ -90,7 +90,6 @@ def check_for_new_calls(project_ids):
         new_last_call_id = last_call_id
 
         for call in json_data:
-            # print(call)
             call_id_str = call.get('id')
             call_id = int(call_id_str) if call_id_str is not None else -1
 
@@ -104,9 +103,25 @@ def check_for_new_calls(project_ids):
 
             if contact_status == 'Горячий лид' and project_id in project_ids:
                 if contact_id:
-                    # Получаем записи голоса
-                    if process_voice(contact_id, begin_date, end_date, call):
-                        new_last_call_id = call_id
+                    # Попробуем обработать голос
+                    mp3_url = process_voice(contact_id, begin_date, end_date, call)
+                    if not mp3_url:
+                        # Если записи нет, сохраним данные без нее
+                        user_id = call.get('user_id', 'Не указан')
+                        phone = format_phone_number(call.get('called_phone', 'Не указан'))
+                        manager_name = call.get('operator_name', 'Не указан')
+                        customer_name = call.get('remark', 'Не указано')
+                        project_name = call.get('project_name', 'Не указан')
+                        client_name, city = extract_name_and_city(call)
+                        comment = customer_name or "Комментарий отсутствует"
+
+                        # Сохраняем в базу данных
+                        add_to_database(
+                            get_today_date(), user_id, manager_name, project_id, project_name,
+                            client_name, city, customer_name, phone, comment, None
+                        )
+
+                    new_last_call_id = call_id
 
         if new_last_call_id != last_call_id:
             save_last_call_id(new_last_call_id)
@@ -279,7 +294,7 @@ def main():
     while True:
         try:
             clear_records_folder()
-            project_ids = [11962, 11766, 12112, 12206, 12205, 12257, 12258, 12264,12265]  # Укажите нужные project_id
+            project_ids = [11962, 11766, 12112, 12206, 12205, 12257, 12258, 12264, 12265, 12282, 12296, 12340]  # Укажите нужные project_id
             check_for_new_calls(project_ids)
             print('Повторный запрос через 10 минут')
             time.sleep(600)  # Задержка между проверками

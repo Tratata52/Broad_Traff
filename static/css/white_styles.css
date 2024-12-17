@@ -4,7 +4,7 @@ body {
     font-size: 16px;
     line-height: 1.6;
     color: #333; /* Цвет текста */
-    background-color: #eaeaea; /* Светло-серый фон */
+    background-color: #ffffff; /* Белый фон */
     margin: 0;
     padding: 0;
     transition: background-color 0.3s ease;
@@ -19,7 +19,6 @@ body {
     font-weight: 600;
     color: #444; /* Цвет заголовка */
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Тень */
-
 }
 
 /* Стили для контейнера шапки */
@@ -260,6 +259,7 @@ button {
         font-size: 0.8rem; /* Размер шрифта редактируемого поля для мобильных устройств */
     }
 }
+
 /* Ограничиваем видимую высоту комментария */
 .comment-container {
     max-height: 30px; /* ограниченная высота */
@@ -302,16 +302,16 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #121212; /* Темный фон для окна */
-    color: #e0e0e0; /* Светлый текст */
+    background: #ffffff; /* Белый фон для окна */
+    color: #333; /* Темный текст */
     padding: 20px;
     z-index: 100;
     border-radius: 8px; /* Скругленные углы */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); /* Тень для контраста */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Тень для контраста */
     max-width: 80%; /* Ограничение по ширине */
     max-height: 80%; /* Ограничение по высоте */
     overflow: auto; /* Прокрутка, если текст слишком длинный */
-    border: 1px solid #333; /* Легкая граница */
+    border: 1px solid #ccc; /* Легкая граница */
 }
 
 .popup .close-btn {
@@ -319,7 +319,7 @@ button {
     top: 10px;
     right: 10px;
     font-size: 1.5rem;
-    color: #e0e0e0;
+    color: #333;
     background: transparent;
     border: none;
     cursor: pointer;

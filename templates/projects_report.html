@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Отчет по проектам</title>
+    <link href="{{ url_for('static', filename='css/dark_styles.css') }}" rel="stylesheet">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        th:hover {
+            background-color: #555;
+        }
+
+        th.asc::after {
+            content: " ⬆";
+        }
+
+        th.desc::after {
+            content: " ⬇";
+        }
+
+        tbody tr:hover {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+        }
+
+        .filters input[type="date"],
+        .filters button {
+            padding: 8px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .filters button {
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .filters button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+<h1>Отчет по проектам</h1>
+
+<div class="filters">
+    <form method="GET" action="{{ url_for('report_projects') }}">
+        <label for="date-from">Дата с:</label>
+        <input type="date" id="date-from" name="filter_date_from" value="{{ filter_date_from|default('') }}">
+
+        <label for="date-to">Дата по:</label>
+        <input type="date" id="date-to" name="filter_date_to" value="{{ filter_date_to|default('') }}">
+
+        <label for="selected-project">Проект:</label>
+        <select id="selected-project" name="selected_project">
+            <option value="">Все</option>
+            {% for project in projects %}
+            <option value="{{ project }}" {% if project== selected_project %}selected{% endif %}>{{ project }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Применить</button>
+    </form>
+</div>
+
+<h2>Данные с {{ filter_date_from }} по {{ filter_date_to }}</h2>
+
+<table id="report-table">
+    <thead>
+    <tr>
+        <th onclick="sortTable(0)">Проект</th>
+        <th onclick="sortTable(1)">Всего</th>
+        <th onclick="sortTable(2)">В таблицу</th>
+        <th onclick="sortTable(3)">Брак</th>
+        <th onclick="sortTable(4)">Не отправленные</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if report_data %}
+    {% for row in report_data %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[4] }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td><strong>Итого</strong></td>
+        <td>{{ totals.total_calls }}</td>
+        <td>{{ totals.sent_calls }}</td>
+        <td>{{ totals.approved_calls }}</td>
+        <td>{{ totals.not_sent_calls }}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="5">Данные отсутствуют</td>
+    </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('index') }}">Вернуться на главную</a>
+
+<script>
+    let sortDirections = {};
+
+    function sortTable(columnIndex) {
+        const table = document.getElementById("report-table");
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        const isAscending = !sortDirections[columnIndex];
+        sortDirections[columnIndex] = isAscending;
+
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex]?.innerText.trim() || "";
+            const cellB = rowB.cells[columnIndex]?.innerText.trim() || "";
+
+            const numA = parseFloat(cellA.replace(',', '.')) || 0;
+            const numB = parseFloat(cellB.replace(',', '.')) || 0;
+
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return isAscending ? numA - numB : numB - numA;
+            }
+
+            return isAscending
+                ? cellA.localeCompare(cellB, 'ru')
+                : cellB.localeCompare(cellA, 'ru');
+        });
+
+        const tbody = table.querySelector("tbody");
+        rows.forEach(row => tbody.appendChild(row));
+
+        document.querySelectorAll("th").forEach((th, index) => {
+            th.classList.remove("asc", "desc");
+            if (index === columnIndex) {
+                th.classList.add(isAscending ? "asc" : "desc");
+            }
+        });
+    }
+</script>
+</body>
+</html>

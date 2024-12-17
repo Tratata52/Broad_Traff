@@ -1,14 +1,17 @@
 import logging
 import secrets
 import sqlite3
+from datetime import datetime, date
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
 
 from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4, WORKSHEET5, DB_FILE, DB_FILE_users, \
-    WORKSHEET6, WORKSHEET7, WORKSHEET8, WORKSHEET9
+    WORKSHEET6, WORKSHEET7, WORKSHEET8, WORKSHEET9, WORKSHEET10, WORKSHEET11, WORKSHEET12
 from integration_for_amocrm.approw_leads_for_crm import process_row
 from requests_to_db import get_db_connection, get_duplicates, save_comment
 from send_lead_to_tables import send_lead_to_table_bath, send_lead_to_table_mk_group, send_lead_table_standart
+
+
 
 logging.basicConfig(filename='ADMINKA/logs/app_process.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -28,7 +31,7 @@ def login_required(func):
     return wrapper
 
 
-# Получение звонков
+# Получение звонков из базы данных
 def get_calls(manager_name, project_name):
     conn_call = sqlite3.connect(DB_FILE)
     conn_users = sqlite3.connect(DB_FILE_users)
@@ -74,39 +77,6 @@ def get_calls(manager_name, project_name):
 
     enriched_calls = [(call + (phone_count[call[9]] > 1,)) for call in calls]
     return enriched_calls
-
-
-@app.route('/report', methods=['GET'])
-@login_required  # Проверка авторизации
-def report():
-    manager_id = session.get('manager_id')
-
-    # Проверка, является ли пользователь администратором
-    conn_users = sqlite3.connect(DB_FILE_users)
-    cursor_users = conn_users.cursor()
-    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
-    is_admin = cursor_users.fetchone()
-    conn_users.close()
-
-    if is_admin and is_admin[0] == 1:
-        # Администратор имеет доступ к отчету
-        conn = sqlite3.connect(DB_FILE)
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT manager_name, COUNT(*) AS total_calls, 
-                   SUM(CASE WHEN is_sent = 1 THEN 1 ELSE 0 END) AS sent_calls,
-                   SUM(CASE WHEN approve = 1 THEN 1 ELSE 0 END) AS approved_calls,
-                   SUM(CASE WHEN is_sent = 0 AND approve = 0 THEN 1 ELSE 0 END) AS sent_and_approved
-            FROM calls
-            GROUP BY manager_name
-        """)
-        report_data = cursor.fetchall()
-        conn.close()
-
-        return render_template('report.html', report_data=report_data)
-    else:
-        return redirect(url_for('index'))  # Если не администратор, перенаправить на главную
 
 
 # Авторизация
@@ -193,7 +163,13 @@ def index():
         current_theme=current_theme
     )
 
+# калькулятор зп
+@app.route('/calc', methods=['GET', 'POST'])
+@login_required
+def calc_page():
+    return render_template('calc_up.html')  # Новая страница с фильтрами и таблицей
 
+# ОТПРАВИТЬ ЛИД В ТАБЛИЦУ
 @app.route('/send/<int:call_id>', methods=['POST'])
 @login_required
 def send_lead(call_id):
@@ -225,7 +201,12 @@ def send_lead(call_id):
             send_lead_table_standart(call, WORKSHEET8)
         elif project_id == '12265':
             send_lead_table_standart(call, WORKSHEET9)
-
+        elif project_id == '12282':
+            send_lead_table_standart(call, WORKSHEET10)
+        elif project_id == '12296':
+            send_lead_table_standart(call, WORKSHEET11)
+        elif project_id == '12340':
+            send_lead_table_standart(call, WORKSHEET12)
         else:
             return make_response('Неизвестный проект', 400)
 
@@ -239,7 +220,7 @@ def send_lead(call_id):
         cursor.close()
         conn.close()
 
-
+# удалить лид, если дубль
 @app.route('/delete/<int:call_id>', methods=['DELETE'])
 @login_required
 def delete_call(call_id):
@@ -266,14 +247,14 @@ def delete_call(call_id):
     finally:
         conn.close()
 
-
+# выход из учетной записи
 @app.route('/logout')
 @login_required
 def logout():
     session.pop('manager_id', None)  # Удаляем manager_id из сессии
     return redirect(url_for('login'))  # Перенаправляем на страницу входа
 
-
+# отправка лида в црм (брак)
 @app.route('/approve', methods=['POST'])
 @login_required
 def approve():
@@ -318,7 +299,7 @@ def approve():
     finally:
         conn.close()  # Закрываем соединение в finally блоке
 
-
+# сохранить изменения коммент + имя
 @app.route('/save_lead', methods=['POST'])
 @login_required
 def save_data():
@@ -334,11 +315,266 @@ def save_data():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
+# Аналитика трафика
 @app.route('/rep')
 @login_required
 def leads_page():
     return render_template('analisys.html')  # Новая страница с фильтрами и таблицей
+
+# Отчет по отправленным
+@app.route('/report', methods=['GET'])
+@login_required
+def report():
+    manager_id = session.get('manager_id')
+
+    # Проверяем права администратора
+    conn_users = sqlite3.connect(DB_FILE_users)
+    cursor_users = conn_users.cursor()
+    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
+    is_admin = cursor_users.fetchone()
+    conn_users.close()
+
+    if is_admin and is_admin[0] == 1:
+        # Получаем параметры фильтрации
+        filter_date_from = request.args.get('filter_date_from', date.today().strftime("%Y-%m-%d"))
+        filter_date_to = request.args.get('filter_date_to', date.today().strftime("%Y-%m-%d"))
+        selected_manager = request.args.get('selected_manager', '')
+
+        try:
+            filter_date_from_db = datetime.strptime(filter_date_from, "%Y-%m-%d").strftime("%d.%m.%Y")
+            filter_date_to_db = datetime.strptime(filter_date_to, "%Y-%m-%d").strftime("%d.%m.%Y")
+        except ValueError:
+            filter_date_from_db = filter_date_to_db = date.today().strftime("%d.%m.%Y")
+
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+
+        # Проверяем, существуют ли записи в базе данных для указанного диапазона дат
+        cursor.execute("""
+            SELECT COUNT(*) FROM calls WHERE date BETWEEN ? AND ?
+        """, (filter_date_from_db, filter_date_to_db))
+        data_count = cursor.fetchone()[0]
+
+        if data_count == 0:
+            # Если нет данных, передаем пустые данные
+            report_data = []
+            totals = {
+                "total_calls": 0,
+                "sent_calls": 0,
+                "approved_calls": 0,
+                "not_sent_calls": 0
+            }
+        else:
+            query = """
+                SELECT manager_name, 
+                COUNT(*) AS total_calls, 
+                SUM(CASE WHEN is_sent = 1 THEN 1 ELSE 0 END) AS sent_calls,
+                SUM(CASE WHEN approve = 1 THEN 1 ELSE 0 END) AS approved_calls,
+                SUM(CASE WHEN is_sent = 0 AND approve = 0 THEN 1 ELSE 0 END) AS sent_and_approved
+                FROM calls
+                WHERE date BETWEEN ? AND ?
+            """
+            params = [filter_date_from_db, filter_date_to_db]
+
+            if selected_manager:
+                query += " AND manager_name = ?"
+                params.append(selected_manager)
+
+            query += " GROUP BY manager_name"
+
+            cursor.execute(query, params)
+            report_data = cursor.fetchall()
+
+            # Подсчет итогов для колонок
+            total_calls = sum(row[1] for row in report_data)
+            sent_calls = sum(row[2] for row in report_data)
+            approved_calls = sum(row[3] for row in report_data)
+            not_sent_calls = sum(row[4] for row in report_data)
+
+            totals = {
+                "total_calls": total_calls,
+                "sent_calls": sent_calls,
+                "approved_calls": approved_calls,
+                "not_sent_calls": not_sent_calls
+            }
+
+        cursor.execute("SELECT DISTINCT manager_name FROM calls")
+        managers = [row[0] for row in cursor.fetchall()]
+
+        conn.close()
+
+        return render_template('managers_report.html',
+                               report_data=report_data,
+                               filter_date_from=filter_date_from,
+                               filter_date_to=filter_date_to,
+                               selected_manager=selected_manager,
+                               managers=managers,
+                               totals=totals,  # Передаем итоговые данные
+                               current_date=date.today().strftime("%Y-%m-%d"))
+    else:
+        return redirect(url_for('index'))
+
+# Отчет по проектам
+@app.route('/report_projects', methods=['GET'])
+@login_required
+def report_projects():
+    manager_id = session.get('manager_id')
+
+    # Проверяем права администратора
+    conn_users = sqlite3.connect(DB_FILE_users)
+    cursor_users = conn_users.cursor()
+    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
+    is_admin = cursor_users.fetchone()
+    conn_users.close()
+
+    if is_admin and is_admin[0] == 1:
+        # Получаем параметры фильтрации
+        filter_date_from = request.args.get('filter_date_from', date.today().strftime("%Y-%m-%d"))
+        filter_date_to = request.args.get('filter_date_to', date.today().strftime("%Y-%m-%d"))
+        selected_project = request.args.get('selected_project', '')
+
+        try:
+            filter_date_from_db = datetime.strptime(filter_date_from, "%Y-%m-%d").strftime("%d.%m.%Y")
+            filter_date_to_db = datetime.strptime(filter_date_to, "%Y-%m-%d").strftime("%d.%m.%Y")
+        except ValueError:
+            filter_date_from_db = filter_date_to_db = date.today().strftime("%d.%m.%Y")
+
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+
+        # Проверяем, существуют ли записи в базе данных для указанного диапазона дат
+        cursor.execute("""
+               SELECT COUNT(*) FROM calls WHERE date BETWEEN ? AND ?
+           """, (filter_date_from_db, filter_date_to_db))
+        data_count = cursor.fetchone()[0]
+
+        if data_count == 0:
+            # Если нет данных, передаем пустые данные
+            report_data = []
+            totals = {
+                "total_calls": 0,
+                "sent_calls": 0,
+                "approved_calls": 0,
+                "not_sent_calls": 0
+            }
+        else:
+            query = """
+                   SELECT project_name, 
+                   COUNT(*) AS total_calls, 
+                   SUM(CASE WHEN is_sent = 1 THEN 1 ELSE 0 END) AS sent_calls,
+                   SUM(CASE WHEN approve = 1 THEN 1 ELSE 0 END) AS approved_calls,
+                   SUM(CASE WHEN is_sent = 0 AND approve = 0 THEN 1 ELSE 0 END) AS not_sent_calls
+                   FROM calls
+                   WHERE date BETWEEN ? AND ?
+               """
+            params = [filter_date_from_db, filter_date_to_db]
+
+            if selected_project:
+                query += " AND project_name = ?"
+                params.append(selected_project)
+
+            query += " GROUP BY project_name"
+
+            cursor.execute(query, params)
+            report_data = cursor.fetchall()
+
+            # Подсчет итогов для колонок
+            total_calls = sum(row[1] for row in report_data)
+            sent_calls = sum(row[2] for row in report_data)
+            approved_calls = sum(row[3] for row in report_data)
+            not_sent_calls = sum(row[4] for row in report_data)
+
+            totals = {
+                "total_calls": total_calls,
+                "sent_calls": sent_calls,
+                "approved_calls": approved_calls,
+                "not_sent_calls": not_sent_calls
+            }
+
+        cursor.execute("SELECT DISTINCT project_name FROM calls")
+        projects = [row[0] for row in cursor.fetchall()]
+
+        conn.close()
+
+        return render_template('projects_report.html',
+                               report_data=report_data,
+                               filter_date_from=filter_date_from,
+                               filter_date_to=filter_date_to,
+                               selected_project=selected_project,
+                               projects=projects,
+                               totals=totals,  # Передаем итоговые данные
+                               current_date=date.today().strftime("%Y-%m-%d"))
+    else:
+        return redirect(url_for('index'))
+
+# Отлчет по браку
+@app.route('/defective_leads', methods=['GET'])
+@login_required
+def defective_leads():
+    manager_id = session.get('manager_id')
+
+    # Проверяем права администратора
+    conn_users = sqlite3.connect(DB_FILE_users)
+    cursor_users = conn_users.cursor()
+    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
+    is_admin = cursor_users.fetchone()
+    conn_users.close()
+
+    if is_admin and is_admin[0] == 1:
+        # Получаем параметры фильтрации
+        filter_date_from = request.args.get('filter_date_from', date.today().strftime("%Y-%m-%d"))
+        filter_date_to = request.args.get('filter_date_to', date.today().strftime("%Y-%m-%d"))
+        selected_manager = request.args.get('selected_manager', '')
+        selected_project = request.args.get('selected_project', '')
+
+        try:
+            filter_date_from_db = datetime.strptime(filter_date_from, "%Y-%m-%d").strftime("%d.%m.%Y")
+            filter_date_to_db = datetime.strptime(filter_date_to, "%Y-%m-%d").strftime("%d.%m.%Y")
+        except ValueError:
+            filter_date_from_db = filter_date_to_db = date.today().strftime("%d.%m.%Y")
+
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+
+        query = """
+            SELECT manager_name, project_name, note, name_note
+            FROM calls
+            WHERE approve = 1 AND date BETWEEN ? AND ?
+        """
+        params = [filter_date_from_db, filter_date_to_db]
+
+        if selected_manager:
+            query += " AND manager_name = ?"
+            params.append(selected_manager)
+
+        if selected_project:
+            query += " AND project_name = ?"
+            params.append(selected_project)
+
+        cursor.execute(query, params)
+        defective_leads = cursor.fetchall()
+
+        # Получаем уникальные значения менеджеров и проектов
+        cursor.execute("SELECT DISTINCT manager_name FROM calls")
+        managers = [row[0] for row in cursor.fetchall()]
+
+        cursor.execute("SELECT DISTINCT project_name FROM calls")
+        projects = [row[0] for row in cursor.fetchall()]
+
+        conn.close()
+
+        return render_template('defects_report.html',
+                               defective_leads=defective_leads,
+                               filter_date_from=filter_date_from,
+                               filter_date_to=filter_date_to,
+                               selected_manager=selected_manager,
+                               selected_project=selected_project,
+                               managers=managers,
+                               projects=projects,
+                               current_date=date.today().strftime("%Y-%m-%d"))
+    else:
+        return redirect(url_for('index'))
+
 
 
 if __name__ == '__main__':
