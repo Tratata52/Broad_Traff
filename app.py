@@ -6,7 +6,7 @@ from datetime import datetime, date
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
 
 from config.config import WORKSHEET1, WORKSHEET2, WORKSHEET3, WORKSHEET4, WORKSHEET5, DB_FILE, DB_FILE_users, \
-    WORKSHEET6, WORKSHEET7, WORKSHEET8, WORKSHEET9, WORKSHEET10, WORKSHEET11, WORKSHEET12
+    WORKSHEET6, WORKSHEET7, WORKSHEET8, WORKSHEET9, WORKSHEET10, WORKSHEET11, WORKSHEET12, WORKSHEET13, WORKSHEET14
 from integration_for_amocrm.approw_leads_for_crm import process_row
 from requests_to_db import get_db_connection, get_duplicates, save_comment
 from send_lead_to_tables import send_lead_to_table_bath, send_lead_to_table_mk_group, send_lead_table_standart
@@ -143,8 +143,9 @@ def index():
     projects = cursor.fetchall()
     conn.close()
 
-    selected_manager = request.args.get('manager')  # Получаем выбранного менеджера
-    selected_project = request.args.get('project')  # Получаем выбранный проект
+    # Получаем выбранных менеджеров и проекты
+    selected_manager = request.args.getlist('manager')  # Получаем выбранных менеджеров
+    selected_project = request.args.getlist('project')  # Получаем выбранные проекты
 
     # Теперь мы передаем аргументы в get_calls
     calls = get_calls(selected_manager, selected_project)
@@ -162,6 +163,7 @@ def index():
         is_admin=is_admin and is_admin[0] == 1,
         current_theme=current_theme
     )
+
 
 # калькулятор зп
 @app.route('/calc', methods=['GET', 'POST'])
@@ -207,6 +209,10 @@ def send_lead(call_id):
             send_lead_table_standart(call, WORKSHEET11)
         elif project_id == '12340':
             send_lead_table_standart(call, WORKSHEET12)
+        elif project_id == '12347':
+            send_lead_table_standart(call, WORKSHEET13)
+        elif project_id == '12344':
+            send_lead_table_standart(call, WORKSHEET14)
         else:
             return make_response('Неизвестный проект', 400)
 

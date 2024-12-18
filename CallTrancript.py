@@ -9,7 +9,7 @@ import requests
 import soundfile as sf
 from groq import Groq
 
-from config.config import API_KEY, CALL_HISTORY_URL, VOICES_URL, LAST_CALL_ID_FILE, GROQ_API_KEY
+from config.config import API_KEY, CALL_HISTORY_URL, VOICES_URL, LAST_CALL_ID_FILE, GROQ_API_KEY, Project_ids
 from requests_to_db import init_db, add_to_database, get_user_ids
 
 # Инициализация Groq
@@ -294,7 +294,7 @@ def main():
     while True:
         try:
             clear_records_folder()
-            project_ids = [11962, 11766, 12112, 12206, 12205, 12257, 12258, 12264, 12265, 12282, 12296, 12340]  # Укажите нужные project_id
+            project_ids = Project_ids  # Укажите нужные project_id
             check_for_new_calls(project_ids)
             print('Повторный запрос через 10 минут')
             time.sleep(600)  # Задержка между проверками

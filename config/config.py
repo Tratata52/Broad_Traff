@@ -29,7 +29,6 @@ LAST_LEAD_ID_FILE = "last_lead_id.txt"
 # БАЗЫ ДАННЫХ
 # DB_FILE = 'leads.db'
 DB_FILE = 'leads.db'
-
 DB_FILE_users = 'user_data.db'
 
 # Подключение к Google Sheets
@@ -44,6 +43,9 @@ headers = {
     'Content-Type': 'application/json'
 }
 
+
+# Проекты
+Project_ids = [11962, 11766, 12112, 12206, 12205, 12257, 12258, 12264, 12265, 12282, 12296, 12340, 12347, 12344]  # Укажите нужные project_id
 
 # ССылки и подключение к таблицам
 # test table
@@ -62,6 +64,9 @@ SPREADSHEET_URL9 = 'https://docs.google.com/spreadsheets/d/1XMyu-wPqBORTifefM1dc
 SPREADSHEET_URL10 = 'https://docs.google.com/spreadsheets/d/1suCEx1uRZyZZlSjyh9pdgq9Av3mpeKKj14pCTzEVNK4/edit?usp=sharing'  # Остекление Новосиб Окна-Нова
 SPREADSHEET_URL11 = 'https://docs.google.com/spreadsheets/d/1qur1xw6DQeBMsb3HiwRbnl4uMR1OQVoakCjBw_PNK1k/edit?usp=sharing'  # Аренда Спец техники ( Вышка с оператором )
 SPREADSHEET_URL12 = 'https://docs.google.com/spreadsheets/d/1b8-WoSEXhjv9xk-pTewnk4vhxCaKIB85PIU1Vs7lLEg/edit?usp=sharing' # Автопогрузчики СПБ + ЛО
+SPREADSHEET_URL13 = 'https://docs.google.com/spreadsheets/d/1zJk016jvnMQNaD_jZdNQtwLCMZpeH06nzG9rA5fAoZw/edit?usp=sharing' # Монтаж ИНЖ новосиб
+SPREADSHEET_URL14 = 'https://docs.google.com/spreadsheets/d/17p4O5ixick4gunL_Q3GkO0ywmvfJyh8ne015my-_Gmo/edit?usp=sharing' # Киров остекление/отделка балконов
+
 
 SPREADSHEET = CLIENT.open_by_url(SPREADSHEET_URL)  # бани
 SPREADSHEET2 = CLIENT.open_by_url(SPREADSHEET_URL2)  # МК групп
@@ -75,6 +80,9 @@ SPREADSHEET9 = CLIENT.open_by_url(SPREADSHEET_URL9)  # Топ кар
 SPREADSHEET10 = CLIENT.open_by_url(SPREADSHEET_URL10)  # Остекление Новосиб Окна-Нова
 SPREADSHEET11 = CLIENT.open_by_url(SPREADSHEET_URL11)  # Аренда Спец техники ( Вышка с оператором )
 SPREADSHEET12 = CLIENT.open_by_url(SPREADSHEET_URL12) # Автопогрузчики СПБ + ЛО
+SPREADSHEET13 = CLIENT.open_by_url(SPREADSHEET_URL13) # Монтаж ИНЖ
+SPREADSHEET14 = CLIENT.open_by_url(SPREADSHEET_URL14) # Киров остекление/отделка балконов
+
 
 WORKSHEET1 = SPREADSHEET.get_worksheet(0)  # бани
 WORKSHEET2 = SPREADSHEET2.get_worksheet(0)  # МК групп
@@ -88,3 +96,5 @@ WORKSHEET9 = SPREADSHEET9.get_worksheet(0)  # Топ кар
 WORKSHEET10 = SPREADSHEET10.get_worksheet(0) # Остекление Новосиб Окна-Нова
 WORKSHEET11 = SPREADSHEET11.get_worksheet(0) # Аренда Спец техники ( Вышка с оператором )
 WORKSHEET12 = SPREADSHEET12.get_worksheet(0) # Автопогрузчики СПБ + ЛО
+WORKSHEET13 = SPREADSHEET13.get_worksheet(0) # Монтаж ИНЖ
+WORKSHEET14 = SPREADSHEET14.get_worksheet(0) # Киров остекление/отделка балконов

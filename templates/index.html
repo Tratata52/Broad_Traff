@@ -12,6 +12,10 @@
         body {
             transition: background-color 0.3s, color 0.3s;
         }
+        /* Скрытые строки */
+        .hidden-row {
+            display: none;
+        }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -49,27 +53,31 @@
     <input id="current-theme" name="current_theme" type="hidden" value="dark_styles.css">
 
     {% if is_admin %}
-    <label>Менеджер:</label>
-    <select id="manager" name="manager" onchange="this.form.submit()">
-        <option value="" {% if not selected_manager %}selected{% endif %}>Все</option>
+    <label>Менеджеры:</label>
+    <div id="managers">
+        <label><input type="checkbox" name="manager" value="" {% if not selected_manager %}checked{% endif %}> Все</label><br>
         {% for manager in managers %}
-        <option value="{{ manager[0] }}" {% if manager[0]== selected_manager %}selected{% endif %}>
-            {{ manager[0] }}
-        </option>
+            <label><input type="checkbox" name="manager" value="{{ manager[0] }}" {% if manager[0] in selected_managers %}checked{% endif %}> {{ manager[0] }}</label><br>
         {% endfor %}
-    </select>
+    </div>
+
+    <label>Проекты:</label>
+    <div id="projects">
+        <label><input type="checkbox" name="project" value="" {% if not selected_project %}checked{% endif %}> Все</label><br>
+        {% for project in projects %}
+            <label><input type="checkbox" name="project" value="{{ project[0] }}" {% if project[0] in selected_projects %}checked{% endif %}> {{ project[0] }}</label><br>
+        {% endfor %}
+    </div>
     {% endif %}
 
-    <label>Проект:</label>
-    <select id="project" name="project" onchange="this.form.submit()">
-        <option value="" {% if not selected_project %}selected{% endif %}>Все</option>
-        {% for project in projects %}
-        <option value="{{ project[0] }}" {% if project[0]== selected_project %}selected{% endif %}>
-            {{ project[0] }}
-        </option>
-        {% endfor %}
-    </select>
+    <button type="submit">Применить фильтры</button>
 </form>
+
+
+<!-- Кнопка для разворачивания скрытых строк -->
+<div id="expand-all-container">
+    <button id="expand-all-btn" onclick="expandAll()">Развернуть все (<span id="hidden-count">0</span>)</button>
+</div>
 
 <table>
     <thead>
@@ -82,7 +90,7 @@
         <th>GPT</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="call-table-body">
     {% for call in calls %}
     <tr class="{% if call[-2] %}duplicate-phone{% endif %}" data-id="{{ call[0] }}" id="call-{{ call[0] }}">
         <td>
@@ -114,6 +122,7 @@
                 <button class="delete-button" onclick="deleteRow({{ call[0] }})" type="button">Удалить</button>
                 {% endif %}
                 <button class="approve-btn" onclick="approveRow({{ call[0] }})" type="button">Брак</button>
+                <button class="hide-btn" onclick="hideRow({{ call[0] }})" type="button">Скрыть</button> <!-- Кнопка для скрытия -->
             </div>
         </td>
         <td>
@@ -125,6 +134,54 @@
 </table>
 
 <script>
+
+    // Сохраняем скрытые строки в localStorage
+    function hideRow(callId) {
+        const row = document.getElementById(`call-${callId}`);
+        if (row) {
+            row.classList.add('hidden-row');
+            saveHiddenRows();
+        }
+        updateHiddenCount();
+    }
+
+    // Функция для сохранения скрытых строк в localStorage
+    function saveHiddenRows() {
+        const hiddenRows = Array.from(document.querySelectorAll('.hidden-row'))
+            .map(row => row.id.replace('call-', ''));
+        localStorage.setItem('hiddenRows', JSON.stringify(hiddenRows));
+    }
+
+    // Функция для восстановления состояния скрытых строк
+    function restoreHiddenRows() {
+        const hiddenRows = JSON.parse(localStorage.getItem('hiddenRows')) || [];
+        hiddenRows.forEach(callId => {
+            const row = document.getElementById(`call-${callId}`);
+            if (row) {
+                row.classList.add('hidden-row');
+            }
+        });
+        updateHiddenCount();
+    }
+
+    // Функция для разворачивания всех строк
+    function expandAll() {
+        const rows = document.querySelectorAll('tbody tr.hidden-row');
+        rows.forEach(row => row.classList.remove('hidden-row'));
+        saveHiddenRows();
+        updateHiddenCount();
+    }
+
+    // Обновление количества скрытых строк
+    function updateHiddenCount() {
+        const hiddenRows = document.querySelectorAll('.hidden-row');
+        document.getElementById('hidden-count').textContent = hiddenRows.length;
+    }
+
+    // Восстанавливаем скрытые строки при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        restoreHiddenRows();
+    });
 
     function openCommentPopup(commentText) {
         const displayText = commentText ? commentText : "Комментарий отсутствует";

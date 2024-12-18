@@ -55,3 +55,34 @@ approve - 16
 'next_call_time': None,
 'visit_date': None,
 'visit_time': None},
+
+
+    # contact_name - имя базы
+    # contact_description - дор с сп 2 (внутреннее название базы)
+    # contact_address - дата загрузки базы
+    # created_at - дата звонка
+    # name_respond - Имя отвечающего
+    # remark - коммент оператора
+
+
+# Поля таблицы для динамического управления
+TRAFFIC_TABLE_COLUMNS = [
+    ('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'),
+    ('date_load_base', 'TEXT'),
+    ('date_call', 'TEXT'),
+    ('project_id', 'INTEGER'),
+    ('project_name', 'TEXT'),
+    ('contact_base_id', 'INTEGER'),
+    ('contact_name', 'TEXT'),
+    ('contact_description', 'TEXT'),
+    ('contact_id', 'INTEGER'),
+    ('id_call', 'INTEGER'),
+    ('call_result_id', 'INTEGER'),
+    ('contact_status_name', 'TEXT'),
+    ('called_phone', 'TEXT'),
+    ('name_respond', 'TEXT'),
+    ('remark', 'TEXT'),
+    ('user_id', 'INTEGER'),
+    ('operator_name', 'TEXT'),
+    ('is_marriage', 'BOOLEAN DEFAULT 0')
+]
