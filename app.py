@@ -513,7 +513,7 @@ def report_projects():
     else:
         return redirect(url_for('index'))
 
-# Отлчет по браку
+# Отчет по браку
 @app.route('/defective_leads', methods=['GET'])
 @login_required
 def defective_leads():
@@ -581,7 +581,74 @@ def defective_leads():
     else:
         return redirect(url_for('index'))
 
+# Аналитика трафика
+@app.route('/traffic_reports', methods=['GET'])
+@login_required
+def traffic_report():
+    manager_id = session.get('manager_id')
 
+    # Проверяем права администратора
+    conn_users = sqlite3.connect(DB_FILE_users)
+    cursor_users = conn_users.cursor()
+    cursor_users.execute("SELECT admin FROM users WHERE user_id = ?", (manager_id,))
+    is_admin = cursor_users.fetchone()
+    conn_users.close()
+
+    if is_admin and is_admin[0] == 1:
+        # Получаем параметры фильтрации
+        filter_date_from = request.args.get('filter_date_from', date.today().strftime("%Y-%m-%d"))
+        filter_date_to = request.args.get('filter_date_to', date.today().strftime("%Y-%m-%d"))
+
+        try:
+            filter_date_from_db = datetime.strptime(filter_date_from, "%Y-%m-%d").strftime("%d.%m.%Y")
+            filter_date_to_db = datetime.strptime(filter_date_to, "%Y-%m-%d").strftime("%d.%m.%Y")
+        except ValueError:
+            filter_date_from_db = filter_date_to_db = date.today().strftime("%d.%m.%Y")
+
+        conn = sqlite3.connect('Traffic.db')
+        cursor = conn.cursor()
+
+        # Получаем список всех проектов
+        cursor.execute("SELECT DISTINCT project_name FROM traffic")
+        projects = cursor.fetchall()
+
+        # Объединяем данные из таблицы TRAFFIC
+        cursor.execute(""" 
+            SELECT t.project_name, t.operator_name, t.contact_status_name, t.called_phone, t.date_call, t.date_load_base
+            FROM traffic AS t
+            WHERE t.date_call BETWEEN ? AND ?
+        """, (filter_date_from_db, filter_date_to_db))
+        report_data = cursor.fetchall()
+
+        # Подсчет статистики
+        total_calls = len(report_data)
+        successful_calls = sum(1 for row in report_data if row[2] == 'Горячий лид')
+        unsuccessful_calls = sum(1 for row in report_data if row[2] not in ['Горячий лид', 'Перезвонить', 'Отложенный спрос'])
+
+        totals = {
+            'total_calls': total_calls,
+            'successful_calls': successful_calls,
+            'unsuccessful_calls': unsuccessful_calls
+        }
+
+        conn.close()
+
+        # Группируем звонки по проектам
+        project_data = {}
+        for row in report_data:
+            project_name = row[0]
+            if project_name not in project_data:
+                project_data[project_name] = []
+            project_data[project_name].append(row)
+
+        return render_template('analytics.html',
+                               filter_date_from=filter_date_from,
+                               filter_date_to=filter_date_to,
+                               totals=totals,
+                               projects=projects,
+                               project_data=project_data)  # Передаем группированные данные по проектам
+    else:
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0">
+    <title>Отчет по проектам</title>
+    <link href="{{ url_for('static', filename='css/dark_styles.css') }}" rel="stylesheet">
+    <style>
+        .hidden-row {
+            display: none;
+        }
+        .expandable-row {
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .expandable-row:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Отчет по проектам</h1>
+
+<div class="filters">
+    <form method="GET" action="{{ url_for('traffic_report') }}">
+        <label for="date-from">Дата с:</label>
+        <input type="date" id="date-from" name="filter_date_from" value="{{ filter_date_from }}">
+
+        <label for="date-to">Дата по:</label>
+        <input type="date" id="date-to" name="filter_date_to" value="{{ filter_date_to }}">
+
+        <button type="submit">Применить</button>
+    </form>
+</div>
+
+<h2>Общая статистика</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Всего звонков</th>
+        <th>Успешных звонков</th>
+        <th>Неуспешных звонков</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{{ totals.total_calls }}</td>
+        <td>{{ totals.successful_calls }}</td>
+        <td>{{ totals.unsuccessful_calls }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>Проекты</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Проект</th>
+        <th>Операции</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for project in projects %}
+        <tr class="expandable-row" onclick="toggleRow('project-{{ project[0] }}')">
+            <td>{{ project[0] }}</td>
+            <td>Раскрыть</td>
+        </tr>
+
+        <tr id="project-{{ project[0] }}" class="hidden-row">
+            <td colspan="2">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Оператор</th>
+                        <th>Статус</th>
+                        <th>Телефон</th>
+                        <th>Дата звонка</th>
+                        <th>Дата загрузки базы</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in project_data[project[0]] %}
+                        <tr class="expandable-row" onclick="toggleRow('status-{{ project[0] }}-{{ loop.index }}')">
+                            <td>{{ row[1] }}</td>
+                            <td colspan="4">{{ row[2] }} (Нажмите для подробностей)</td>
+                        </tr>
+                        <tr id="status-{{ project[0] }}-{{ loop.index }}" class="hidden-row">
+                            <td colspan="5">
+                                Телефон: {{ row[3] }}<br>
+                                Дата звонка: {{ row[4] }}<br>
+                                Дата загрузки базы: {{ row[5] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function toggleRow(rowId) {
+        var row = document.getElementById(rowId);
+        if (row.style.display === "none") {
+            row.style.display = "table-row";
+        } else {
+            row.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>

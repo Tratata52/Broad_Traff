@@ -34,6 +34,7 @@
     </div>
     <a href="{{ url_for('leads_page') }}" style="text-decoration: none; color: inherit;">Анализ трафика</a>
     <a href="{{ url_for('calc_page') }}" style="text-decoration: none; color: inherit;">Калькулятор ЗП</a>
+    <a href="{{ url_for('traffic_report') }}" style="text-decoration: none; color: inherit;">Тест трафика</a>
 </h1>
 
 <!-- Всплывающее окно -->
@@ -53,26 +54,27 @@
     <input id="current-theme" name="current_theme" type="hidden" value="dark_styles.css">
 
     {% if is_admin %}
-    <label>Менеджеры:</label>
-    <div id="managers">
-        <label><input type="checkbox" name="manager" value="" {% if not selected_manager %}checked{% endif %}> Все</label><br>
+    <label>Менеджер:</label>
+    <select id="manager" name="manager" onchange="this.form.submit()">
+        <option value="" {% if not selected_manager %}selected{% endif %}>Все</option>
         {% for manager in managers %}
-            <label><input type="checkbox" name="manager" value="{{ manager[0] }}" {% if manager[0] in selected_managers %}checked{% endif %}> {{ manager[0] }}</label><br>
+        <option value="{{ manager[0] }}" {% if manager[0]== selected_manager %}selected{% endif %}>
+            {{ manager[0] }}
+        </option>
         {% endfor %}
-    </div>
-
-    <label>Проекты:</label>
-    <div id="projects">
-        <label><input type="checkbox" name="project" value="" {% if not selected_project %}checked{% endif %}> Все</label><br>
-        {% for project in projects %}
-            <label><input type="checkbox" name="project" value="{{ project[0] }}" {% if project[0] in selected_projects %}checked{% endif %}> {{ project[0] }}</label><br>
-        {% endfor %}
-    </div>
+    </select>
     {% endif %}
 
-    <button type="submit">Применить фильтры</button>
+    <label>Проект:</label>
+    <select id="project" name="project" onchange="this.form.submit()">
+        <option value="" {% if not selected_project %}selected{% endif %}>Все</option>
+        {% for project in projects %}
+        <option value="{{ project[0] }}" {% if project[0]== selected_project %}selected{% endif %}>
+            {{ project[0] }}
+        </option>
+        {% endfor %}
+    </select>
 </form>
-
 
 <!-- Кнопка для разворачивания скрытых строк -->
 <div id="expand-all-container">
