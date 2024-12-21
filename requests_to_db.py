@@ -4,7 +4,7 @@ import sqlite3
 
 from flask import session
 
-from ADMINKA.config.config import DB_FILE, DB_FILE_users
+from ADMINKA.config.config import DB_FILE, DB_FILE_users, DB_FILE_analytics
 
 
 # Инициализация базы данных для звонков
@@ -177,3 +177,87 @@ def get_user_ids():
 
     conn.close()
     return user_ids
+
+# создание базы для аналитики
+
+def init_db_analytics():
+    # Настройка логирования
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        filename='logs/analytics.log',
+        encoding='UTF-8'
+    )
+
+    # Поля таблицы для динамического управления
+    TRAFFIC_TABLE_COLUMNS = [
+        ('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'),
+        ('date_load_base', 'TEXT'),
+        ('date_call', 'TEXT'),
+        ('project_id', 'INTEGER'),
+        ('project_name', 'TEXT'),
+        ('contact_base_id', 'INTEGER'),
+        ('contact_name', 'TEXT'),
+        ('contact_description', 'TEXT'),
+        ('contact_id', 'INTEGER'),
+        ('id_call', 'INTEGER'),
+        ('call_result_id', 'INTEGER'),
+        ('contact_status_name', 'TEXT'),
+        ('called_phone', 'TEXT'),
+        ('name_respond', 'TEXT'),
+        ('remark', 'TEXT'),
+        ('user_id', 'INTEGER'),
+        ('operator_name', 'TEXT'),
+        ('is_marriage', 'BOOLEAN DEFAULT 0')
+    ]
+
+    """Инициализация базы данных и динамическое создание таблицы."""
+    try:
+        conn = sqlite3.connect(DB_FILE_analytics)
+        cursor = conn.cursor()
+
+        # Динамическое создание таблицы
+        columns_definition = ', '.join([f"{name} {type}" for name, type in TRAFFIC_TABLE_COLUMNS])
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS traffic ({columns_definition})")
+        logging.info("Таблица traffic проверена/создана успешно")
+
+        # Проверка и добавление недостающих столбцов
+        cursor.execute("PRAGMA table_info(traffic)")
+        existing_columns = {column[1] for column in cursor.fetchall()}
+
+        for name, type in TRAFFIC_TABLE_COLUMNS:
+            if name not in existing_columns:
+                cursor.execute(f"ALTER TABLE traffic ADD COLUMN {name} {type}")
+                logging.info(f"Добавлен столбец: {name} ({type})")
+
+        conn.commit()
+    except sqlite3.Error as e:
+        logging.error(f"Ошибка при инициализации базы данных: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_to_database_analytics(**kwargs):
+    """Добавление записи в таблицу traffic."""
+    try:
+        conn = sqlite3.connect(DB_FILE_analytics)
+        cursor = conn.cursor()
+
+        # Формируем запрос с учётом переданных данных
+        columns = ', '.join(kwargs.keys())
+        placeholders = ', '.join(['?' for _ in kwargs])
+        values = tuple(kwargs.values())
+
+        cursor.execute(f"INSERT INTO traffic ({columns}) VALUES ({placeholders})", values)
+        conn.commit()
+        logging.info(f"Добавлена запись: {kwargs}")
+    except sqlite3.Error as e:
+        logging.error(f"Ошибка при добавлении данных в базу: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+#
+
+#

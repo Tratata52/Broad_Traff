@@ -1,0 +1,158 @@
+*** Комп ***
+ssh -i C:\Users\user\.ssh\id_rsa root@95.181.173.227
+V2W4z06yc0dE
+
+*** Ноут ***
+ssh -i C:\Users\Book\.ssh\id_rsa root@95.181.173.227
+V2W4z06yc0dE
+
+
+*** узнать id запущенных процессов ***
+ps aux | grep python
+
+# создать вирт окружение
+python3 -m venv name_venv
+
+
+# активация вирт окружения
+source admin/bin/activate
+
+
+# запуск в фоновом режиме
+nohup python3 .py &> .log &
+nohup flask run --host=0.0.0.0 --port=8080 &> logs/app.log &
+
+nohup python3 Users.py &> logs/Users.log &
+nohup python3 CallTrancript.py &> logs/CallTrancript.log &
+nohup python3 app.py &> logs/app.log &
+nohup python3 amo_crm_for_tables.py &> logs/amo_crm_for_tables.log &
+nohup python3 send_email.py &> logs/send_email.log &
+nohup python3 сбор.py &> logs/сбор.log &
+nohup python3 neyro_bot.py &> logs/neyro_bot.log &
+
+
+nohup python3 ecoban_comment.py &> logs/ecoban_comment.log &
+nohup python3 amo_for_table_maximum.py &> logs/amo_for_table_maximum.log &
+nohup python3 amo_for_table_mk_group.py &> logs/amo_for_table_mk_group.log &
+nohup python3 boardtraff_leads_bot.py &> logs/boardtraff_leads_bot.log &
+nohup python3 neyro_bot.py &> neyro_bot.log &
+nohup python3 mk_gr_autocom2.py &> logs/mk_gr_autocom2.log &
+
+# остановить запущенные процессы
+kill 90212
+
+# удалить файл(ы)
+rm autocom_mkgroop.log autocom_mkgroop.py
+
+# перемеиновать файл
+mv имя.ру другое_имя.py
+
+# создать папку
+mkdir новый_каталог
+
+удалить папку
+rm -rf /root/logs
+
+# прочесть файл
+tail -f logs/send_email.log
+
+# Для отображения размера директорий
+du -sh *
+
+----------------------------------------------------------------------------------------------------------
+***С компа на сервак***
+ROOT/Broad_Traff/ADMINKA
+
+
+V2W4z06yc0dE
+
+# скопировать css dark
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/static/css/dark_styles.css" root@95.181.173.227:/root/Broad_Traff/ADMINKA/static/css/
+
+# скопировать css white
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/static/css/white_styles.css" root@95.181.173.227:/root/Broad_Traff/ADMINKA/static/css/
+
+# скопировать бд
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/leads.db" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать бд Трафик
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/Traffic.db" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать сбор.py
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/сбор.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать json аналитику трафика
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/static/compact_contact_sources.json" root@95.181.173.227:/root/Broad_Traff/ADMINKA/static
+
+# скопировать cтраницу аналитику трафика
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates/analytics.html" root 95.181.173.227:/root/Broad_Traff/ADMINKA/templates
+
+скопировать cтраницу индекс
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates/index.html" root@95.181.173.227:/root/Broad_Traff/ADMINKA/templates
+
+# скопировать cтраницу managers_report
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates/managers_report.html" root@95.181.173.227:/root/Broad_Traff/ADMINKA/templates
+
+# скопировать cтраницу projects_report.html
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates/projects_report.html" root@95.181.173.227:/root/Broad_Traff/ADMINKA/templates
+
+# скопировать cтраницу defects_report.html
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates/defects_report.html" root@95.181.173.227:/root/Broad_Traff/ADMINKA/templates
+
+# скопировать cтраницу калькулятор зп
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates/calc_up.html" root@95.181.173.227:/root/Broad_Traff/ADMINKA/templates
+
+
+# скопировать app
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/app.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать callTranscript
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/CallTrancript.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать сенд мейл
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/amo_crm_for_tables.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать config
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/config/config.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/config
+
+# скопировать бота
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/boardtraff_leads_bot.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+# скопировать
+scp -i "C:/Users/user/.ssh/id_rsa" "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/start_collect_calls.py" root@95.181.173.227:/root/Broad_Traff/ADMINKA/
+
+
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+***С СЕРВАКА НА КОМП ***
+V2W4z06yc0dE
+
+БД
+scp -i "C:/Users/user/.ssh/id_rsa" root@95.181.173.227:/root/Broad_Traff/ADMINKA/leads.db "C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/"
+
+index.html
+scp -i "C:/Users/user/.ssh/id_rsa" root 95.181.173.227:/root/Broad_Traff/ADMINKA/templates/index.html"C:/Users/user/PycharmProjects/Broad_Traff/ADMINKA/templates"
+
+
+---------------------------------------------------------------------------------------------------------------
+Api-ключи
+GROQ
+
+zn178spb
+NeyroBot - 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
+
+TestTable - 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
+
+isrgznn
+tables - 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
+
+
+Ключ NGROK
+2nRjQSCHYV423vRX7j6d3FCBdPc_noejgNXKD2GvHQmmtAUh
+
+2nmyNhXYFBYg6cSIMGeMMhLnzUm_6ck3bHmaupEvaywv8zaLg
+
+
+api key тест гугл таблицы isrgznn
+
+AIzaSyAd5YrfHvZMrk8R0AMCHpzSqY47dwy5Nzk

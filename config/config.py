@@ -28,8 +28,10 @@ LAST_LEAD_ID_FILE = "last_lead_id.txt"
 
 # БАЗЫ ДАННЫХ
 # DB_FILE = 'leads.db'
+DB_FILE_analytics = 'Traffic.db'
 DB_FILE = 'leads.db'
 DB_FILE_users = 'user_data.db'
+
 
 # Подключение к Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
